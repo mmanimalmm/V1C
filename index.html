@@ -4,33 +4,459 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>V1C</title>
+<meta name="description" content="Valorant 1 Day Challenge — 하루 랭크 1판 기록과 맵별 라인업 모음">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="V1C">
 <meta name="theme-color" content="#0B0C0E">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
-<script>
-  // 홈 화면 아이콘으로 열면(?go=1) 바로 V1C로 이동. 처음 방문할 땐 안내만 보여 줌.
-  var TARGET = "https://claude.ai/artifact/Sqw39ent98A4vkyrokHXdz";
-  if (/[?&]go=1/.test(location.search)) { location.replace(TARGET); }
-  else { try { history.replaceState(null, "", "?go=1"); } catch (e) {} }
-</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Gothic+A1:wght@400;500;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
 <style>
-  :root{color-scheme:dark}
-  body{margin:0;min-height:100vh;background:#0B0C0E;color:#ECECEE;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;display:grid;place-items:center;text-align:center;padding:24px max(16px,env(safe-area-inset-right)) 24px max(16px,env(safe-area-inset-left));box-sizing:border-box}
-  img{width:120px;height:120px;border-radius:27px;box-shadow:0 0 0 1px #2A2D33,0 12px 30px -12px #000}
-  h1{font-size:20px;margin:18px 0 6px}
-  p{color:#8A8E97;font-size:15px;line-height:1.6;margin:0 0 20px}
-  b{color:#ECECEE}
-  a{display:inline-block;background:#FF4655;color:#fff;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:12px}
+/* Layout: app shell — left sidebar on desktop, auto-hiding top bar on phones; flat dark surfaces, red only for "you are here". */
+:root{
+  --bg:#0B0C0E;--panel:#141519;--soft:#1B1D22;--line:#26292F;--ink:#ECECEE;--muted:#8A8E97;
+  --accent:#FF4655;--accent-ink:#fff;
+  --win:#3ECF8E;--win-bg:#13261E;--loss:#FF5C69;--loss-bg:#2B1519;--draw:#D9C470;--draw-bg:#2A2614;--warn:#F2A549;--warn-bg:#2C2214;
+  --side:#0F1013;--side-line:#1E2025;--hover:#1A1C20;--on:#2A1215;--on-line:#7A2830;
+  --f-num:"Outfit","Gothic A1",system-ui,sans-serif;--f-kr:"Gothic A1",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;--f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:dark}
+:root[data-theme="light"]{
+  --bg:#F5F5F3;--panel:#fff;--soft:#F0F0EE;--line:#E3E3DF;--ink:#16171A;--muted:#6B6F77;--accent:#E5323F;
+  --win:#16865A;--win-bg:#E3F3EA;--loss:#C92F3C;--loss-bg:#FBE6E8;--draw:#7A6A2A;--draw-bg:#F4EFD9;--warn:#A65A0A;--warn-bg:#FCEFD9;
+  --side:#fff;--side-line:#E6E6E2;--hover:#F1F1EE;--on:#FDECEE;--on-line:#F2A9B0;color-scheme:light}
+*{box-sizing:border-box}
+html,body{margin:0;overflow-x:clip}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-kr);letter-spacing:-.005em;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit}
+h1,h2,h3{margin:0;text-wrap:balance}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* shell */
+.app{display:grid;grid-template-columns:236px minmax(0,1fr);min-height:100vh;min-height:100dvh}
+.side{position:sticky;top:0;height:100vh;height:100dvh;overflow-y:auto;background:var(--side);border-right:1px solid var(--side-line);
+  padding:20px 14px 16px;display:flex;flex-direction:column;gap:18px}
+.brand{display:flex;flex-direction:column;gap:2px;padding:4px 12px 8px;text-decoration:none;color:inherit}
+.wordmark{font-family:"Outfit",sans-serif;font-weight:800;font-size:28px;letter-spacing:-.03em;line-height:1}
+.wordmark em{font-style:normal;color:var(--accent)}
+.brand small{font-family:"Outfit",sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);line-height:1.35}
+.group{display:flex;flex-direction:column;gap:3px}
+.glabel{font-size:11.5px;color:var(--muted);padding:0 10px 4px;letter-spacing:.06em}
+.nav,.acts{display:flex;flex-direction:column;gap:3px}
+.navs{display:contents}
+.item{appearance:none;display:flex;align-items:center;gap:11px;width:100%;text-align:left;border:1px solid transparent;background:none;
+  font-weight:600;font-size:14px;padding:9px 12px;border-radius:12px;cursor:pointer;text-decoration:none;color:var(--ink);transition:background .15s,border-color .15s}
+.item svg{width:19px;height:19px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.item:hover{background:var(--hover)}
+.item[aria-current="page"],.item[aria-pressed="true"]{background:var(--on);border-color:var(--on-line);color:var(--accent)}
+.item .sub{margin-left:auto;font-family:var(--f-num);font-size:11px;font-weight:500;color:var(--muted)}
+.item[aria-pressed="true"] .sub{color:var(--accent)}
+.dot{width:9px;height:9px;border-radius:50%;flex:none;margin:0 5px;background:var(--muted)}
+.item[data-act="act6"] .dot{background:var(--accent)}
+.item[data-act="all"] .dot{background:none;border:2px solid currentColor;width:10px;height:10px}
+.foot{margin-top:auto;display:flex;flex-direction:column;gap:3px;padding-top:12px;border-top:1px solid var(--side-line)}
+.foot .item{font-weight:500;color:var(--muted)}
+.foot .item.rec{color:var(--ink)}
+main{width:100%;max-width:1040px;margin:0 auto;padding-block:28px 64px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px;min-width:0}
+.head{display:flex;flex-direction:column;gap:6px}
+.eyebrow{font-family:"Outfit",sans-serif;font-size:11.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.head .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.head h1{font-weight:800;font-size:clamp(28px,4vw,38px);line-height:1.1;letter-spacing:-.025em}
+.tag{font-family:"Outfit",sans-serif;font-weight:600;font-size:12px;letter-spacing:.08em;padding:3px 10px 2px;border-radius:999px;background:var(--on);color:var(--accent);border:1px solid var(--on-line)}
+.lead{color:var(--muted);margin:0;font-size:14px}
+.updated{font-size:12px;color:var(--muted)}
+
+/* surfaces */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;min-width:0}
+.panel h2{font-size:17px;font-weight:700;letter-spacing:-.015em;margin-bottom:4px}
+.hint{font-size:13px;color:var(--muted);margin:0 0 10px}
+.empty{padding:14px 16px;border:1px dashed var(--line);border-radius:12px;color:var(--muted);font-size:14px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+
+/* hero card */
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:center}
+.wr{font-family:"Outfit",sans-serif;font-weight:700;font-size:64px;letter-spacing:-.04em;line-height:1}
+.rec{color:var(--muted);font-size:15px}
+.delta{font-size:12.5px;border-radius:6px;padding:2px 7px;font-weight:700;margin-left:6px;font-family:var(--f-num)}
+.up{background:var(--win-bg);color:var(--win)}.down{background:var(--loss-bg);color:var(--loss)}.flat{background:var(--soft);color:var(--muted)}
+.strip{display:flex;gap:3px;flex-wrap:wrap;margin-top:12px}
+.strip span{width:20px;height:20px;border-radius:5px;font-size:10.5px;font-weight:700;display:grid;place-items:center}
+.strip .W{background:var(--win-bg);color:var(--win)}.strip .L{background:var(--loss-bg);color:var(--loss)}.strip .D{background:var(--draw-bg);color:var(--draw)}
+.kv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.kv div{padding:10px 12px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.kv div:nth-child(3n){border-right:0}.kv div:nth-last-child(-n+3){border-bottom:0}
+.kv dt{font-size:11.5px;color:var(--muted)}.kv dd{margin:0;font-family:var(--f-num);font-weight:700;font-size:19px;font-variant-numeric:tabular-nums}
+
+/* tables */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 12px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th{font-size:12px;color:var(--muted);font-weight:600;background:var(--soft)}
+th:first-child,td:first-child{text-align:left}
+td:first-child{font-weight:700}
+tbody tr:last-child td{border-bottom:0}
+.pill{display:inline-block;min-width:56px;text-align:center;padding:2px 8px;border-radius:999px;font-family:var(--f-num);font-weight:700;font-size:13px;background:var(--soft)}
+.pill.good{background:var(--win-bg);color:var(--win)}.pill.bad{background:var(--loss-bg);color:var(--loss)}
+.kd.good{color:var(--win);font-weight:700}.kd.bad{color:var(--loss);font-weight:700}
+
+/* chart */
+svg.chart{display:block;width:100%;height:auto}
+svg.chart text{fill:var(--muted);font:11px var(--f-num)}
+svg.chart .g{stroke:var(--line)}svg.chart .z{stroke:var(--muted);stroke-dasharray:3 3}
+
+/* feed */
+.feed{display:flex;flex-direction:column;gap:8px}
+details.game{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--muted);border-radius:14px;overflow:hidden}
+details.game.W{border-left-color:var(--win)}details.game.L{border-left-color:var(--loss)}details.game.D{border-left-color:var(--draw)}
+details.game>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 14px;align-items:center;padding:12px 16px}
+details.game>summary::-webkit-details-marker{display:none}
+details.game>summary:hover{background:var(--hover)}
+.res{display:flex;flex-direction:column;line-height:1.1;min-width:74px}
+.res b{font-family:"Outfit",sans-serif;font-weight:700;font-size:17px;letter-spacing:.04em}
+.W .res b{color:var(--win)}.L .res b{color:var(--loss)}.D .res b{color:var(--draw)}
+.res span{font-size:13px;color:var(--muted);font-family:var(--f-num)}
+.mid{min-width:0;display:flex;flex-direction:column}
+.mid b{font-weight:700;overflow-wrap:anywhere}.mid span{font-size:13px;color:var(--muted)}
+.right{display:flex;flex-direction:column;align-items:flex-end;font-size:13px;color:var(--muted)}
+.right b{font-family:var(--f-num);font-size:15px;color:var(--ink)}
+.chip{grid-column:1/-1;justify-self:start;font-size:12px;border-radius:6px;padding:1px 8px;background:var(--soft);border:1px solid var(--line);color:var(--muted)}
+.chip.warn{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+.detail{padding:12px 16px 16px;border-top:1px dashed var(--line);display:flex;flex-direction:column;gap:10px}
+.stats{display:flex;gap:6px 16px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.stats b{color:var(--ink);font-family:var(--f-num)}
+.rk{display:flex;gap:3px;flex-wrap:wrap}
+.rk i{width:18px;height:18px;font-style:normal;font-size:10.5px;display:grid;place-items:center;border-radius:4px;background:var(--soft);color:var(--muted);font-family:var(--f-num)}
+.rk i.k1{color:var(--ink)}.rk i.k2{background:var(--warn-bg);color:var(--warn)}.rk i.k3{background:var(--loss-bg);color:var(--loss);font-weight:700}
+.memo{font-size:14px;color:var(--muted);overflow-wrap:anywhere}
+
+/* lineup accordion */
+.acc-list{display:flex;flex-direction:column;gap:4px}
+.acc{border-radius:10px}
+.acc.lv-map{border:1px solid var(--line);background:var(--panel)}
+.acc.lv-map.open{border-color:var(--on-line)}
+.acc-head{appearance:none;width:100%;display:flex;align-items:center;gap:10px;background:none;border:0;border-radius:inherit;text-align:left;padding:7px 14px;cursor:pointer;min-width:0;font-size:14.5px}
+.acc-head:hover{background:var(--hover)}
+.acc-head .nm{display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap}
+.acc-head .en{font-family:"Outfit",sans-serif;font-size:10.5px;letter-spacing:.14em;color:var(--muted)}
+.acc-meta{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap}
+.chev{width:7px;height:7px;border-right:1.8px solid var(--muted);border-bottom:1.8px solid var(--muted);transform:translateY(-2px) rotate(45deg);transition:transform .28s,border-color .2s;flex:none;margin:0 2px 0 4px}
+.acc.open>.acc-head .chev{transform:translateY(1px) rotate(225deg);border-color:var(--accent)}
+.acc-panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows .34s cubic-bezier(.2,.7,.2,1)}
+.acc.open>.acc-panel{grid-template-rows:1fr}
+.acc-inner{overflow:hidden;min-height:0}
+.acc-body{padding:0 8px 8px 22px}
+.acc.lv-map>.acc-head{padding:9px 14px}
+.acc.lv-map>.acc-head b{font-size:15.5px;font-weight:800}
+.acc.lv-map.has>.acc-head b::after{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-left:7px;vertical-align:middle}
+.acc.lv-side.open,.acc.lv-site.open{background:color-mix(in srgb,var(--soft) 70%,transparent)}
+.acc.lv-side.open>.acc-head b,.acc.lv-site.open>.acc-head .nm{color:var(--accent)}
+.acc.lv-site>.acc-body{padding:4px 10px 12px}
+.badge{font-family:"Outfit",sans-serif;font-size:11px;font-weight:700;min-width:22px;height:20px;padding:0 5px;border-radius:6px;display:inline-grid;place-items:center;background:var(--on);color:var(--accent);border:1px solid var(--on-line)}
+.lu-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:12px}
+.lu{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.lu h4{margin:0;font-size:15px;line-height:1.35;overflow-wrap:anywhere}
+.lu .note{font-size:13.5px;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere}
+.lu .top{display:flex;gap:8px;justify-content:space-between;align-items:flex-start}
+.ag{font-size:12px;border-radius:6px;padding:1px 7px;background:var(--soft);border:1px solid var(--line);white-space:nowrap}
+.thumb{appearance:none;position:relative;display:block;width:100%;padding:0;border:0;background:#000;border-radius:10px;overflow:hidden;cursor:zoom-in;aspect-ratio:16/9}
+.thumb video{width:100%;height:100%;object-fit:contain;pointer-events:none;display:block}
+.play{position:absolute;left:50%;top:50%;width:50px;height:50px;margin:-25px 0 0 -25px;border-radius:50%;background:rgba(0,0,0,.55);border:1.5px solid rgba(255,255,255,.7)}
+.play::after{content:"";position:absolute;left:20px;top:15px;border-left:14px solid #fff;border-top:9px solid transparent;border-bottom:9px solid transparent}
+.thumb:hover .play{background:var(--accent);border-color:var(--accent)}
+.ytb{display:inline-flex;align-self:flex-start;font-size:13px;font-weight:700;padding:6px 12px;border-radius:9px;background:var(--soft);border:1px solid var(--line);color:var(--ink);text-decoration:none}
+.wait{font-size:12px;color:var(--muted)}
+.lb{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);display:grid;place-items:center;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.lb-box{width:min(100%,1400px);display:flex;flex-direction:column;gap:10px;color:#fff}
+.lb-head{display:flex;align-items:center;gap:12px}
+.lb-head b{font-size:16px}.lb-head span{font-size:12.5px;color:#b9bcc3;display:block}
+.lb-x{appearance:none;margin-left:auto;flex:none;width:38px;height:38px;border-radius:50%;border:1px solid #3a3d44;background:#1b1d22;color:#fff;cursor:pointer}
+#lb-video{width:100%;max-height:calc(100dvh - 150px);background:#000;border-radius:12px}
+.lb-note{color:#c9ccd2;font-size:14px;white-space:pre-wrap}
+
+/* phones */
+@media (max-width:860px){
+  .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr}
+  .side{position:sticky;top:0;z-index:20;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px 10px;overflow:visible;border-right:0;border-bottom:1px solid var(--side-line);
+    padding:calc(10px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) 10px max(14px,env(safe-area-inset-left,0px));transition:transform .26s cubic-bezier(.2,.7,.2,1)}
+  .side.hide{transform:translateY(-102%)}
+  .brand{padding:0;flex:1 1 auto}
+  .wordmark{font-size:24px}.brand small{display:none}
+  .glabel{display:none}
+  .group.acts-g{order:2}
+  .acts{flex-direction:row;gap:4px}
+  .acts .item{width:auto;padding:5px 10px;font-size:12.5px;gap:4px}
+  .acts .sub{display:none}.acts .dot{margin:0 2px}
+  .foot{margin:0;padding:0;border:0;flex-direction:row;order:1}
+  .foot .item{width:auto;padding:6px 8px}
+  .foot .lbl{display:none}
+  .navs{display:flex;flex-basis:100%;order:3;min-width:0;gap:2px;align-items:center;overflow-x:auto;scrollbar-width:none;padding:2px;position:relative}
+  .navs::-webkit-scrollbar{display:none}
+  .navs .group,.navs .nav{display:contents}
+  .navs .lineup-g .nav::before{content:"";flex:none;width:1px;height:20px;background:var(--side-line);margin:0 3px}
+  .nav .item{width:auto;flex:none;padding:7px 12px;gap:7px;font-size:13.5px}
+  .nav .item svg{width:17px;height:17px}
+  .nav .item:not([aria-current="page"]) .lbl{display:none}
+  .nav .item:not([aria-current="page"]){padding:8px 9px;gap:0}
+  main{padding-block:18px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .hero{grid-template-columns:1fr}
+  .wr{font-size:52px}
+  .acc-body{padding:0 4px 6px 12px}.acc.lv-site>.acc-body{padding:4px 4px 10px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
-  <main>
-    <img src="apple-touch-icon.png" alt="V1C 아이콘">
-    <h1>V1C 바로가기</h1>
-    <p>아이폰: 사파리 아래 <b>공유</b> → <b>홈 화면에 추가</b><br>안드로이드: 크롬 <b>⋮</b> → <b>홈 화면에 추가</b><br>추가한 아이콘을 누르면 V1C가 바로 열려요.</p>
-    <a href="https://claude.ai/artifact/Sqw39ent98A4vkyrokHXdz">지금 V1C 열기</a>
-  </main>
+<div class="app">
+<aside class="side" id="side" aria-label="메뉴">
+  <a class="brand" href="#board"><span class="wordmark">V<em>1</em>C</span><small>Valorant 1 Day<br>Challenge</small></a>
+
+  <div class="navs" id="navs">
+    <div class="group">
+      <div class="glabel">챌린지</div>
+      <nav class="nav" aria-label="챌린지">
+        <a class="item" href="#board" data-view="board" title="현황"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span class="lbl">현황</span></a>
+        <a class="item" href="#feed" data-view="feed" title="전체 기록"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg><span class="lbl">전체 기록</span></a>
+        <a class="item" href="#stats" data-view="stats" title="요원 · 맵"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span class="lbl">요원 · 맵</span></a>
+      </nav>
+    </div>
+    <div class="group lineup-g">
+      <div class="glabel">라인업</div>
+      <nav class="nav" aria-label="라인업">
+        <a class="item" href="#recon" data-view="recon" title="각 리콘"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg><span class="lbl">각 리콘</span></a>
+        <a class="item" href="#molly" data-view="molly" title="각 불"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8c.9 3 4.8 5 4.8 10.2a4.8 4.8 0 0 1-9.6 0c0-2.4 1.1-3.8 2.3-4.9.1 2 .9 3.1 2 3.4.2-3-.6-5.6.5-8.7z"/></svg><span class="lbl">각 불</span></a>
+        <a class="item" href="#ghost" data-view="ghost" title="각 귀체"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V11a7 7 0 0 1 14 0v9l-2.3-1.6L14.3 20 12 18.4 9.7 20l-2.4-1.6z"/><circle cx="9.5" cy="11" r="1"/><circle cx="14.5" cy="11" r="1"/></svg><span class="lbl">각 귀체</span></a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="group acts-g" id="acts-g">
+    <div class="glabel">시즌</div>
+    <div class="acts" role="group" aria-label="액트 선택">
+      <button type="button" class="item" data-act="act6" aria-pressed="true"><span class="dot"></span>ACT 6<span class="sub">진행 중</span></button>
+      <button type="button" class="item" data-act="act5" aria-pressed="false"><span class="dot"></span>ACT 5<span class="sub">보관</span></button>
+      <button type="button" class="item" data-act="all" aria-pressed="false"><span class="dot"></span>전체</button>
+    </div>
+  </div>
+
+  <div class="foot">
+    <a class="item rec" href="https://claude.ai/artifact/Sqw39ent98A4vkyrokHXdz" title="기록하기 (claude.ai)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg><span class="lbl">기록하기</span></a>
+    <button type="button" class="item" id="theme" title="화면 테마 바꾸기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><span class="lbl" id="theme-lbl">라이트 모드</span></button>
+  </div>
+</aside>
+
+<main>
+  <header class="head">
+    <div class="eyebrow">V1C · Valorant 1 Day Challenge</div>
+    <div class="row"><h1 id="title">현황</h1><span class="tag" id="act-tag">ACT 6</span></div>
+    <p class="lead" id="lead">이기든 지든, 오늘은 딱 한 판. 하루 1판만 했을 때 정말 좋은지 기록으로 확인해요.</p>
+    <span class="updated" id="updated"></span>
+  </header>
+
+  <section id="v-board" data-v></section>
+  <section id="v-feed" data-v hidden></section>
+  <section id="v-stats" data-v hidden></section>
+  <section id="v-lineup" data-v hidden></section>
+</main>
+</div>
+
+<div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-labelledby="lb-title">
+  <div class="lb-box">
+    <div class="lb-head"><div><b id="lb-title"></b><span id="lb-meta"></span></div><button type="button" class="lb-x" id="lb-close" aria-label="닫기">✕</button></div>
+    <video id="lb-video" controls playsinline></video>
+    <div class="lb-note" id="lb-note"></div>
+  </div>
+</div>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s);
+function el(t,a={},...k){const e=document.createElement(t);for(const[n,v]of Object.entries(a)){if(v==null||v===false)continue;if(n==="class")e.className=v;else if(n.startsWith("on"))e.addEventListener(n.slice(2),v);else e.setAttribute(n,v)}for(const c of k.flat()){if(c==null||c===false)continue;e.append(c instanceof Node?c:document.createTextNode(String(c)))}return e}
+const nz=v=>v!=null&&v!==""&&!isNaN(v);
+const fmt=(n,d=1)=>nz(n)?Number(n).toFixed(d):"–";
+const MAPS=["어센트","어비스","헤이븐","로터스","스플릿","선셋","서밋","바인드","브리즈","아이스박스","펄","프랙처","코로드"];
+const MAP_EN={"어센트":"ASCENT","어비스":"ABYSS","헤이븐":"HAVEN","로터스":"LOTUS","스플릿":"SPLIT","선셋":"SUNSET","서밋":"SUMMIT","바인드":"BIND","브리즈":"BREEZE","아이스박스":"ICEBOX","펄":"PEARL","프랙처":"FRACTURE","코로드":"CORRODE"};
+const C_MAPS=["헤이븐","로터스"];
+const KIND={recon:"리콘",molly:"불",ghost:"귀체"},SIDE={atk:"공격",def:"수비"},SIDE_EN={atk:"ATTACK",def:"DEFENSE"};
+const TITLES={board:"현황",feed:"전체 기록",stats:"요원 · 맵",recon:"각 리콘",molly:"각 불",ghost:"각 귀체"};
+const isLu=v=>v in KIND;
+const todayKST=()=>new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Seoul"}).format(new Date());
+const addDays=(iso,n)=>{const d=new Date(iso+"T00:00:00Z");d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+
+const S={data:null,view:"board",act:"act6",nav:{map:null,side:null,site:null}};
+
+/* ---------- data helpers ---------- */
+function games(){const all=(S.data&&S.data.games)||[],st=S.data?S.data.act6Start:"2026-10-16";
+  return S.act==="all"?all:all.filter(g=>S.act==="act6"?g.date>=st:g.date<st)}
+function markExtras(list){const seen=new Set();return list.map(g=>{const k=g.date;const extra=seen.has(k);seen.add(k);return{...g,extra}})}
+function mini(g){const n=g.length,w=g.filter(x=>x.result==="W").length,l=g.filter(x=>x.result==="L").length;
+  const K=g.reduce((s,x)=>s+(+x.kills||0),0),D=g.reduce((s,x)=>s+(+x.deaths||0),0);
+  const acs=g.map(x=>x.acs).filter(nz).map(Number),rr=g.map(x=>x.rr).filter(nz).map(Number);
+  return{n,w,l,wr:n?w/n:null,kd:D?K/D:null,acs:acs.length?acs.reduce((a,b)=>a+b,0)/acs.length:null,rrSum:rr.length?rr.reduce((a,b)=>a+b,0):null,rrN:rr.length}}
+function streak(list){const byDate={};list.forEach(g=>byDate[g.date]=(byDate[g.date]||0)+1);
+  let d=todayKST();if(!byDate[d])d=addDays(d,-1);let s=0;while(byDate[d]===1){s++;d=addDays(d,-1)}return s}
+const pill=v=>nz(v)?el("span",{class:"pill"+(v>=.55?" good":v<=.45?" bad":"")},(v*100).toFixed(1)+"%"):"–";
+const kdS=v=>nz(v)?el("span",{class:"kd"+(v>=1.1?" good":v<.9?" bad":"")},Number(v).toFixed(2)):"–";
+
+/* ---------- views ---------- */
+function renderBoard(){
+  const box=$("#v-board");box.replaceChildren();
+  const all=markExtras(games()),ch=all.filter(g=>!g.extra),m=mini(ch),base=S.data.baseline;
+  if(!all.length){box.append(el("div",{class:"empty"},S.act==="act5"?"ACT 5에 남은 기록이 없어요.":"이번 액트 기록이 아직 없어요. 오늘 1판 하고 기록하기에서 남겨 주세요."));return}
+  const d=base&&nz(base.winRate)&&m.wr!=null?m.wr*100-base.winRate:null;
+  const hero=el("div",{class:"panel hero"},
+    el("div",{},el("div",{class:"hint",style:"margin:0 0 6px"},`챌린지 판 ${m.n}판 · 연속 ${streak(all)}일`),
+      el("div",{},el("span",{class:"wr"},m.wr==null?"–":Math.round(m.wr*100)+"%"),
+        d==null?null:el("span",{class:"delta "+(d>0.05?"up":d<-0.05?"down":"flat")},(d>0?"+":"")+d.toFixed(1)+"%p")),
+      el("div",{class:"rec"},`${m.w}승 ${m.l}패`+(base&&nz(base.winRate)?` · 챌린지 전 승률 ${base.winRate}%`:"")),
+      el("div",{class:"strip","aria-label":"최근 결과"},ch.slice(-20).map(g=>el("span",{class:g.result,title:`${g.date} ${g.map}`},g.result==="W"?"승":g.result==="L"?"패":"무")))),
+    el("dl",{class:"kv"},
+      [["RR 합계",m.rrN?(m.rrSum>0?"+":"")+m.rrSum:"–"],["K/D",fmt(m.kd,2)],["평균 ACS",fmt(m.acs,0)],
+       ["추가 판",all.length-ch.length],["전체 판",all.length],["기록일",new Set(all.map(g=>g.date)).size+"일"]].map(([k,v])=>el("div",{},el("dt",{},k),el("dd",{},v)))));
+  box.append(hero);
+  // vs baseline
+  if(base){const cmp=[["승률",base.winRate!=null?base.winRate/100:null,m.wr,"pct"],["K/D",base.kd,m.kd,"kd"],["ACS",base.acs,m.acs,"n"]];
+    box.append(el("div",{class:"panel",style:"margin-top:14px"},el("h2",{},"챌린지 전 vs 1판 챌린지"),
+      el("p",{class:"hint"},`챌린지 전은 트래커 ${base.matches}판 기준이에요. 판수가 적을 땐 크게 흔들리니 10판 이상부터 참고하세요.`),
+      el("div",{class:"tw"},el("table",{},el("thead",{},el("tr",{},el("th",{},"지표"),el("th",{},"챌린지 전"),el("th",{},"1판 챌린지"))),
+        el("tbody",{},cmp.map(([k,a,b,t])=>el("tr",{},el("td",{},k),el("td",{class:"num"},t==="pct"?pill(a):t==="kd"?kdS(a):fmt(a,0)),el("td",{class:"num"},t==="pct"?pill(b):t==="kd"?kdS(b):fmt(b,0)))))))))}
+  // first vs extra
+  const ex=all.filter(g=>g.extra);
+  if(ex.length){const a=mini(ch),b=mini(ex);
+    box.append(el("div",{class:"panel",style:"margin-top:14px"},el("h2",{},"그날 1판째 vs 추가 판"),el("p",{class:"hint"},"1판만 하는 게 정말 나은지 직접 비교하는 표예요."),
+      el("div",{class:"tw"},el("table",{},el("thead",{},el("tr",{},["","판","승률","K/D","ACS"].map(h=>el("th",{},h)))),
+        el("tbody",{},[["1판째",a],["추가 판",b]].map(([k,s])=>el("tr",{},el("td",{},k),el("td",{class:"num"},s.n),el("td",{},pill(s.wr)),el("td",{},kdS(s.kd)),el("td",{class:"num"},fmt(s.acs,0)))))))))}
+  // RR chart
+  const rr=ch.filter(g=>nz(g.rr));
+  box.append(el("div",{class:"panel",style:"margin-top:14px"},el("h2",{},"RR 누적 변화"),
+    rr.length<2?el("p",{class:"hint",style:"margin:6px 0 0"},rr.length?`RR이 기록된 판이 ${rr.length}판이라 아직 그래프를 그리기엔 적어요. 지금까지 ${rr[0].rr>0?"+":""}${rr[0].rr}.`:"RR을 기록한 판이 아직 없어요."):rrChart(rr)));
+  // condition
+  const cond=[["전날 수면",[["5시간 이하",g=>nz(g.sleep)&&g.sleep<=5],["6시간",g=>g.sleep===6],["7시간",g=>g.sleep===7],["8시간 이상",g=>nz(g.sleep)&&g.sleep>=8]]],
+    ["오늘 운동",[["했음",g=>g.exercise===true],["안 함",g=>g.exercise===false]]],
+    ["게임 시각",[["21시 전",g=>nz(g.playHour)&&g.playHour>=6&&g.playHour<21],["21~23시",g=>g.playHour===21||g.playHour===22],["23시 이후",g=>nz(g.playHour)&&(g.playHour>=23||g.playHour<6)]]]];
+  const tabs=cond.map(([t,gs])=>{const rows=gs.map(([l,f])=>[l,mini(all.filter(f))]).filter(r=>r[1].n);return rows.length?el("div",{class:"tw"},el("table",{},el("thead",{},el("tr",{},[t,"판","승률","K/D"].map(h=>el("th",{},h)))),el("tbody",{},rows.map(([l,s])=>el("tr",{},el("td",{},l),el("td",{class:"num"},s.n),el("td",{},pill(s.wr)),el("td",{},kdS(s.kd))))))):null}).filter(Boolean);
+  if(tabs.length)box.append(el("div",{class:"panel",style:"margin-top:14px"},el("h2",{},"컨디션별 성적"),el("p",{class:"hint"},"추가 판도 포함한 전체 판 기준이에요. 2~3주는 쌓여야 믿을 만해요."),el("div",{class:"grid2"},tabs)));
+}
+function rrChart(rr){const W=640,H=220,P={l:40,r:14,t:14,b:26};let c=0;const pts=[{i:0,v:0}].concat(rr.map((g,i)=>({i:i+1,v:(c+=Number(g.rr)),g})));
+  const vs=pts.map(p=>p.v),mn=Math.min(0,...vs),mx=Math.max(0,...vs),pad=Math.max(10,(mx-mn)*.15),lo=mn-pad,hi=mx+pad;
+  const x=i=>P.l+(W-P.l-P.r)*i/(pts.length-1),y=v=>P.t+(H-P.t-P.b)*(hi-v)/(hi-lo);
+  const ns="http://www.w3.org/2000/svg",s=document.createElementNS(ns,"svg");s.setAttribute("viewBox",`0 0 ${W} ${H}`);s.setAttribute("class","chart");s.setAttribute("role","img");s.setAttribute("aria-label","RR 누적 변화");
+  const add=(t,a)=>{const e=document.createElementNS(ns,t);for(const k in a)e.setAttribute(k,a[k]);s.append(e);return e};
+  const step=Math.max(10,Math.ceil((hi-lo)/4/10)*10);for(let v=Math.ceil(lo/step)*step;v<=hi;v+=step){add("line",{x1:P.l,x2:W-P.r,y1:y(v),y2:y(v),class:v===0?"z":"g"});add("text",{x:P.l-6,y:y(v)+4,"text-anchor":"end"}).textContent=v}
+  add("path",{d:pts.map((p,i)=>(i?"L":"M")+x(p.i)+" "+y(p.v)).join(" "),fill:"none",stroke:"var(--accent)","stroke-width":2.5,"stroke-linejoin":"round"});
+  pts.slice(1).forEach(p=>{add("circle",{cx:x(p.i),cy:y(p.v),r:3.5,fill:p.g.result==="W"?"var(--win)":"var(--loss)"})});
+  const last=pts[pts.length-1];add("text",{x:x(last.i),y:y(last.v)-9,"text-anchor":"end",style:"fill:var(--ink);font-weight:700"}).textContent=(last.v>0?"+":"")+last.v;
+  return s}
+function renderFeed(){
+  const box=$("#v-feed");box.replaceChildren();
+  const list=markExtras(games()).reverse();
+  if(!list.length){box.append(el("div",{class:"empty"},"아직 기록이 없어요."));return}
+  const counts={};list.forEach(g=>counts[g.date]=(counts[g.date]||0)+1);
+  box.append(el("div",{class:"feed"},list.map(g=>{
+    const res=g.result==="W"?"VICTORY":g.result==="L"?"DEFEAT":"DRAW";
+    const rr=nz(g.rr)?el("span",{},"RR ",el("b",{style:`color:${g.rr>0?"var(--win)":g.rr<0?"var(--loss)":"inherit"}`},(g.rr>0?"+":"")+g.rr)):null;
+    const sleep=nz(g.sleep)?(g.sleep<=5?(g.sleep<5?g.sleep+"시간":"5시간↓"):g.sleep>=8?"8시간↑":g.sleep+"시간"):null;
+    return el("details",{class:"game "+g.result},
+      el("summary",{},el("div",{class:"res"},el("b",{},res),nz(g.my)?el("span",{},`${g.my} : ${g.opp}`):null),
+        el("div",{class:"mid"},el("b",{},`${g.map||"?"} · ${g.agent||"?"}`),el("span",{},g.date)),
+        el("div",{class:"right"},el("span",{},"KDA ",el("b",{},`${g.kills??"–"}/${g.deaths??"–"}/${g.assists??"–"}`)),rr),
+        g.extra?el("span",{class:"chip warn"},"추가 판 · 챌린지 제외"):counts[g.date]>1?el("span",{class:"chip"},"그날 1판째 · 챌린지 기록"):null),
+      el("div",{class:"detail"},
+        el("div",{class:"stats"},nz(g.acs)?el("span",{},"ACS ",el("b",{},g.acs)):null,nz(g.hs)?el("span",{},"헤드샷 ",el("b",{},g.hs+"%")):null,nz(g.adr)?el("span",{},"ADR ",el("b",{},g.adr)):null,
+          g.cond?el("span",{},"컨디션 ",el("b",{},g.cond+"/5")):null,sleep?el("span",{},"수면 ",el("b",{},sleep)):null,g.exercise!=null?el("span",{},"운동 ",el("b",{},g.exercise?"했음":"안 함")):null,nz(g.playHour)?el("span",{},"게임 시각 ",el("b",{},g.playHour+"시")):null),
+        Array.isArray(g.roundKills)&&g.roundKills.length?el("div",{},el("div",{class:"hint",style:"margin:0 0 4px"},"라운드별 킬"),el("div",{class:"rk"},g.roundKills.map((v,i)=>el("i",{class:"k"+Math.min(v,3),title:`${i+1}라운드 ${v}킬`},v)))):null,
+        g.memo?el("div",{class:"memo"},g.memo):null))})));
+}
+function renderStats(){
+  const box=$("#v-stats");box.replaceChildren();const all=games();
+  if(!all.length){box.append(el("div",{class:"empty"},"아직 기록이 없어요."));return}
+  const table=(title,key)=>{const groups={};all.forEach(g=>{const k=g[key]||"?";(groups[k]=groups[k]||[]).push(g)});
+    const rows=Object.entries(groups).map(([k,g])=>[k,mini(g)]).sort((a,b)=>b[1].n-a[1].n||(b[1].wr||0)-(a[1].wr||0));
+    return el("div",{class:"tw"},el("table",{},el("thead",{},el("tr",{},[title,"판","승패","승률","K/D","ACS"].map(h=>el("th",{},h)))),
+      el("tbody",{},rows.map(([k,s])=>el("tr",{},el("td",{},k),el("td",{class:"num"},s.n),el("td",{class:"num"},`${s.w}-${s.l}`),el("td",{},pill(s.wr)),el("td",{},kdS(s.kd)),el("td",{class:"num"},fmt(s.acs,0)))))))};
+  box.append(el("div",{class:"panel"},el("h2",{},"요원 · 맵별 성적"),el("p",{class:"hint"},"추가 판을 포함한 전체 판 기준이에요."),el("div",{class:"grid2"},table("요원","agent"),table("맵","map"))));
+}
+
+/* ---------- lineups ---------- */
+let accN=0;
+function accClose(w){w.classList.remove("open");w.querySelector(":scope>.acc-head").setAttribute("aria-expanded","false");
+  w.querySelectorAll(".acc.open").forEach(d=>{d.classList.remove("open");d.querySelector(":scope>.acc-head").setAttribute("aria-expanded","false")})}
+function accOpen(w){w.classList.add("open");w.querySelector(":scope>.acc-head").setAttribute("aria-expanded","true");
+  if(w.classList.contains("lv-site"))w.querySelectorAll("video[data-src]").forEach(v=>{v.src=v.dataset.src;v.removeAttribute("data-src")})}
+function acc(level,head,meta,open,body,on){const id="acc"+(++accN);
+  const b=el("button",{type:"button",class:"acc-head","aria-expanded":String(!!open),"aria-controls":id},head,el("span",{class:"acc-meta"},meta),el("span",{class:"chev","aria-hidden":"true"}));
+  const w=el("div",{class:"acc "+level},b,el("div",{class:"acc-panel",id,role:"region"},el("div",{class:"acc-inner"},el("div",{class:"acc-body"},body))));
+  b.addEventListener("click",()=>{const o=!w.classList.contains("open");[...w.parentElement.children].forEach(x=>{if(x!==w&&x.classList.contains("open"))accClose(x)});o?accOpen(w):accClose(w);on(o)});
+  if(open)accOpen(w);return w}
+function sitesOf(m){return C_MAPS.includes(m)?["A","B","C","미드"]:["A","B","미드"]}
+function renderLineups(){
+  const k=S.view,box=$("#v-lineup");box.replaceChildren();const nav=S.nav;
+  const list=((S.data&&S.data.lineups)||[]).filter(x=>x.kind===k);
+  box.append(el("p",{class:"hint"},"맵을 누르면 공격·수비, 그다음 사이트 순으로 펼쳐져요."+(list.length?"":` 아직 올라온 각 ${KIND[k]}${k==="ghost"?"가":"이"} 없어요.`)));
+  const root=el("div",{class:"acc-list"});
+  MAPS.forEach(m=>{const inMap=list.filter(x=>x.map===m),a=inMap.filter(x=>x.side==="atk").length,d=inMap.filter(x=>x.side==="def").length;
+    const sides=["atk","def"].map(sd=>{const inSide=inMap.filter(x=>x.side===sd);
+      const sites=sitesOf(m).filter(st=>st!=="미드"||inSide.some(x=>x.site==="미드")).map(st=>{const items=inSide.filter(x=>x.site===st),here=nav.map===m&&nav.side===sd&&nav.site===st;
+        return acc("lv-site",el("span",{class:"nm"},el("span",{class:"badge"},st==="미드"?"MID":st),`${st==="미드"?"미드":st} ${SIDE[sd]} ${KIND[k]}`),items.length?`${items.length}개`:"비어 있음",here,
+          items.length?el("div",{class:"lu-items"},items.map(x=>card(x,here))):el("div",{class:"empty"},"아직 없어요."),o=>{S.nav={map:m,side:sd,site:o?st:null}})});
+      return acc("lv-side",el("span",{class:"nm"},el("span",{class:"en"},SIDE_EN[sd]),el("b",{},`${SIDE[sd]} ${KIND[k]}`)),
+        inSide.length?sitesOf(m).map(st=>{const n=inSide.filter(x=>x.site===st).length;return n?`${st} ${n}`:null}).filter(Boolean).join(" · "):"비어 있음",
+        nav.map===m&&nav.side===sd,el("div",{class:"acc-list"},sites),o=>{S.nav={map:m,side:o?sd:null,site:null}})});
+    root.append(acc("lv-map"+(a+d?" has":""),el("span",{class:"nm"},el("b",{},m),el("span",{class:"en"},MAP_EN[m])),a+d?`공격 ${a} · 수비 ${d}`:"아직 없음",nav.map===m,el("div",{class:"acc-list"},sides),o=>{S.nav={map:o?m:null,side:null,site:null}}))});
+  box.append(root);
+}
+function card(x,live){
+  const src=x.video?x.video+"#t=0.1":null;
+  const vid=src?el("button",{type:"button",class:"thumb","aria-label":`${x.title} 영상 크게 보기`,onclick:()=>lbOpen(x)},
+    el("video",live?{src,preload:"metadata",muted:"",playsinline:"",tabindex:"-1","aria-hidden":"true"}:{"data-src":src,preload:"metadata",muted:"",playsinline:"",tabindex:"-1","aria-hidden":"true"}),el("span",{class:"play","aria-hidden":"true"})):null;
+  return el("article",{class:"lu"},vid,el("div",{class:"top"},el("h4",{},x.title||"(제목 없음)"),x.agent?el("span",{class:"ag"},x.agent):null),
+    x.note?el("div",{class:"note"},x.note):null,
+    x.url?el("a",{class:"ytb",href:x.url,target:"_blank",rel:"noopener"},"▶ 유튜브"):x.video?null:el("span",{class:"wait"},"영상 준비 중"));
+}
+let lbLast=null;
+function lbOpen(x){lbLast=document.activeElement;const v=$("#lb-video");$("#lb-title").textContent=x.title||"";
+  $("#lb-meta").textContent=[x.map,SIDE[x.side],x.site==="미드"?"미드":x.site+" 사이트",x.agent].filter(Boolean).join(" · ");
+  $("#lb-note").textContent=x.note||"";v.src=x.video;$("#lb").hidden=false;document.documentElement.style.overflow="hidden";$("#lb-close").focus({preventScroll:true});const p=v.play();if(p&&p.catch)p.catch(()=>{})}
+function lbClose(){const v=$("#lb-video");try{v.pause()}catch(e){}v.removeAttribute("src");v.load();$("#lb").hidden=true;document.documentElement.style.overflow="";if(lbLast&&lbLast.focus)lbLast.focus({preventScroll:true})}
+$("#lb-close").addEventListener("click",lbClose);$("#lb").addEventListener("click",e=>{if(e.target.id==="lb")lbClose()});
+addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#lb").hidden)lbClose()});
+
+/* ---------- shell ---------- */
+const mq=matchMedia("(max-width:860px)");
+function show(v){if(!TITLES[v])v="board";if(isLu(v)&&S.view!==v)S.nav={map:null,side:null,site:null};S.view=v;
+  document.querySelectorAll("[data-v]").forEach(s=>s.hidden=s.id!=="v-"+(isLu(v)?"lineup":v));
+  document.querySelectorAll(".nav .item").forEach(a=>{if(a.dataset.view===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
+  $("#title").textContent=TITLES[v];$("#act-tag").hidden=isLu(v);$("#lead").hidden=isLu(v);$("#acts-g").hidden=isLu(v);
+  $("#side").classList.remove("hide");render();
+  if(mq.matches){const c=$("#navs"),b=c.querySelector('[aria-current="page"]');if(b)requestAnimationFrame(()=>{const l=b.offsetLeft,r=l+b.offsetWidth;if(l<c.scrollLeft||r>c.scrollLeft+c.clientWidth)c.scrollTo({left:Math.max(0,l-(c.clientWidth-b.offsetWidth)/2),behavior:"smooth"})})}
+}
+function render(){if(!S.data)return;
+  $("#act-tag").textContent=S.act==="act6"?"ACT 6":S.act==="act5"?"ACT 5 · 보관":"전체 기록";
+  if(S.view==="board")renderBoard();else if(S.view==="feed")renderFeed();else if(S.view==="stats")renderStats();else renderLineups()}
+addEventListener("hashchange",()=>{show(location.hash.slice(1));scrollTo({top:0})});
+document.querySelectorAll(".acts .item").forEach(b=>b.addEventListener("click",()=>{S.act=b.dataset.act;store.set("v1c-act",S.act);
+  document.querySelectorAll(".acts .item").forEach(x=>x.setAttribute("aria-pressed",x===b));render()}));
+{const a=store.get("v1c-act");if(a==="act5"||a==="act6"||a==="all"){S.act=a;document.querySelectorAll(".acts .item").forEach(x=>x.setAttribute("aria-pressed",x.dataset.act===a))}}
+// theme
+function paintTheme(){$("#theme-lbl").textContent=document.documentElement.dataset.theme==="light"?"다크 모드":"라이트 모드"}
+if(store.get("v1c-theme")==="light")document.documentElement.dataset.theme="light";paintTheme();
+$("#theme").addEventListener("click",()=>{const l=document.documentElement.dataset.theme!=="light";if(l)document.documentElement.dataset.theme="light";else delete document.documentElement.dataset.theme;store.set("v1c-theme",l?"light":"dark");paintTheme()});
+// hide top bar on scroll (phones)
+{let last=scrollY;const side=$("#side");addEventListener("scroll",()=>{const y=scrollY;if(!mq.matches||y<=side.offsetHeight){side.classList.remove("hide");last=y;return}
+  if(y>last+6)side.classList.add("hide");else if(y<last-6)side.classList.remove("hide");if(Math.abs(y-last)>6)last=y},{passive:true})}
+
+show(location.hash.slice(1)||"board");
+fetch("data/v1c.json",{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(d=>{S.data=d;
+  const u=new Date(d.updatedAt);$("#updated").textContent=isNaN(u)?"":"마지막 업데이트 "+new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"}).format(u);render()})
+  .catch(()=>{$("#v-board").replaceChildren(el("div",{class:"empty"},"기록을 불러오지 못했어요. 잠시 후 새로고침해 주세요."))});
+})();
+</script>
 </body>
 </html>
