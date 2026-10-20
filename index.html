@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>V1C</title>
+<meta name="apple-mobile-web-app-title" content="V1C">
+<meta name="theme-color" content="#0B0C0E">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<script>
+  // 홈 화면 아이콘으로 열면(?go=1) 바로 V1C로 이동. 처음 방문할 땐 안내만 보여 줌.
+  var TARGET = "https://claude.ai/artifact/Sqw39ent98A4vkyrokHXdz";
+  if (/[?&]go=1/.test(location.search)) { location.replace(TARGET); }
+  else { try { history.replaceState(null, "", "?go=1"); } catch (e) {} }
+</script>
+<style>
+  :root{color-scheme:dark}
+  body{margin:0;min-height:100vh;background:#0B0C0E;color:#ECECEE;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;display:grid;place-items:center;text-align:center;padding:24px max(16px,env(safe-area-inset-right)) 24px max(16px,env(safe-area-inset-left));box-sizing:border-box}
+  img{width:120px;height:120px;border-radius:27px}
+  h1{font-size:20px;margin:18px 0 6px}
+  p{color:#8A8E97;font-size:15px;line-height:1.6;margin:0 0 20px}
+  b{color:#ECECEE}
+  a{display:inline-block;background:#FF4655;color:#fff;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:12px}
+</style>
+</head>
+<body>
+  <main>
+    <img src="apple-touch-icon.png" alt="V1C 아이콘">
+    <h1>V1C 바로가기</h1>
+    <p>아이폰: 사파리 아래 <b>공유</b> → <b>홈 화면에 추가</b><br>안드로이드: 크롬 <b>⋮</b> → <b>홈 화면에 추가</b><br>추가한 아이콘을 누르면 V1C가 바로 열려요.</p>
+    <a href="https://claude.ai/artifact/Sqw39ent98A4vkyrokHXdz">지금 V1C 열기</a>
+  </main>
+</body>
+</html>
