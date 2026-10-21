@@ -453,7 +453,7 @@ $("#theme").addEventListener("click",()=>{const l=document.documentElement.datas
   if(y>last+6)side.classList.add("hide");else if(y<last-6)side.classList.remove("hide");if(Math.abs(y-last)>6)last=y},{passive:true})}
 
 show(location.hash.slice(1)||"board");
-fetch("data/v1c.json",{cache:"no-cache"}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(d=>{S.data=d;
+fetch("data/v1c.json?t="+Date.now(),{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(d=>{S.data=d;
   const u=new Date(d.updatedAt);$("#updated").textContent=isNaN(u)?"":"마지막 업데이트 "+new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"}).format(u);render()})
   .catch(()=>{$("#v-board").replaceChildren(el("div",{class:"empty"},"기록을 불러오지 못했어요. 잠시 후 새로고침해 주세요."))});
 })();
