@@ -6,8 +6,8 @@
 <meta name="theme-color" content="#0d0f14">
 <meta name="description" content="V1C — 발로란트 각귀체, 각불, 각리콘을 맵·진영·사이트별로 모아 보는 라인업 라이브러리">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="V1C">
-<title>V1C | VALORANT LINEUPS</title>
+<meta name="apple-mobile-web-app-title" content="각">
+<title>각 | VALORANT LINEUPS</title>
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -169,13 +169,26 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
 .mapbtn.rotation-map:not([aria-pressed="true"]){border-color:rgba(255,70,85,.22)}
 @media(max-width:600px){.map-group{padding:13px 12px 15px}.map-group-heading{margin-bottom:12px}.map-group-title h3{font-size:14px}.map-group-title p{font-size:10px}.map-group-count{font-size:9px}}
 
+
+/* Collapsible secondary map pool */
+.map-group-suffix{display:flex;align-items:center;gap:12px;flex:none}
+.other-maps{padding:0;overflow:hidden}
+.other-maps>.map-group-summary{margin:0;cursor:pointer;padding:17px 18px;user-select:none;list-style:none}
+.other-maps>.map-group-summary::-webkit-details-marker{display:none}
+.other-maps>.map-group-summary::marker{content:""}
+.other-maps>.map-group-summary:hover{background:var(--surface2)}
+.other-maps>.map-group-summary:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
+.other-maps>.maplist{padding:0 18px 19px}
+.map-chevron{font-size:22px;line-height:1;display:inline-block;color:var(--muted);transition:transform .15s}
+.other-maps[open] .map-chevron{transform:rotate(180deg)}
+@media(max-width:600px){.other-maps>.map-group-summary{padding:13px 12px}.other-maps>.maplist{padding:0 12px 15px}.map-group-suffix{gap:7px}}
 </style>
 </head>
 <body>
 <header class="topbar">
   <div class="shell">
-    <a class="brand" href="./" aria-label="V1C 홈">
-      <span class="brandmark">V1C</span>
+    <a class="brand" href="./" aria-label="각 홈">
+      <span class="brandmark">각</span>
       <span class="brandtext">LINEUP LIBRARY<small>VALORANT COLLECTION</small></span>
     </a>
     <div class="actions">
@@ -186,7 +199,7 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
 </header>
 <main class="shell">
   <section class="hero">
-    <div class="eyebrow">LINEUP ARCHIVE / V1C</div>
+    <div class="eyebrow">LINEUP ARCHIVE / 각</div>
     <h1>원하는 각을,<br><em>필요한 순간에.</em></h1>
     <p>카테고리를 고르고, 맵 → 공격·수비 → 사이트 순서로 선택하세요. 해당 지역의 영상 썸네일을 누르면 바로 크게 재생됩니다.</p>
   </section>
@@ -243,7 +256,7 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
     </section>
   </div>
 </main>
-<footer class="footer shell"><span>V1C · Valorant Lineup Library</span><span>개인용 비공식 팬 프로젝트 · Riot Games와 무관합니다</span></footer>
+<footer class="footer shell"><span>각 · Valorant Lineup Library</span><span>개인용 비공식 팬 프로젝트 · Riot Games와 무관합니다</span></footer>
 
 <dialog id="viewer" aria-labelledby="viewerTitle">
   <div class="modalhead">
@@ -264,7 +277,7 @@ const COMPETITIVE_MAPS=["어비스","바인드","코로드","헤이븐","로터�
 const NON_ROTATION_MAPS=MAPS.filter(map=>!COMPETITIVE_MAPS.includes(map));
 const THREE_SITE_MAPS=new Set(["헤이븐","로터스"]);
 const SIDE={atk:"공격",def:"수비"};
-const state={kind:"ghost",map:null,side:null,site:null,lineups:[],loading:true,error:false};
+const state={kind:"ghost",map:null,side:null,site:null,otherMapsExpanded:false,lineups:[],loading:true,error:false};
 const $=id=>document.getElementById(id);
 function node(tag,cls,value){const e=document.createElement(tag);if(cls)e.className=cls;if(value!==undefined)e.textContent=String(value);return e}
 const count=list=>list.length+"개";
@@ -322,12 +335,15 @@ function renderCats(){
 function renderMaps(){
   const root=$("maps");root.replaceChildren();
   const makeGroup=(title,sub,maps,competitive)=>{
-    const section=node("section","map-group"+(competitive?" current-rotation":""));
+    const section=node(competitive?"section":"details","map-group"+(competitive?" current-rotation":" other-maps"));
     section.setAttribute("aria-label",title);
-    const heading=node("div","map-group-heading");
+    const heading=node(competitive?"div":"summary","map-group-heading"+(competitive?"":" map-group-summary"));
     const titleWrap=node("div","map-group-title");
     titleWrap.append(node("h3",null,title),node("p",null,sub));
-    heading.append(titleWrap,node("span","map-group-count",maps.length+" MAPS"));
+    const suffix=node("div","map-group-suffix");
+    suffix.append(node("span","map-group-count",maps.length+" MAPS"));
+    if(!competitive)suffix.append(node("span","map-chevron","⌄"));
+    heading.append(titleWrap,suffix);
     section.append(heading);
     const list=node("div","maplist");list.setAttribute("role","group");list.setAttribute("aria-label",title);
     maps.forEach(map=>{
@@ -337,10 +353,17 @@ function renderMaps(){
       b.addEventListener("click",()=>{if(state.map!==map){state.map=map;resetAfter("map");render()}});
       list.append(b);
     });
-    section.append(list);root.append(section);
+    section.append(list);
+    if(!competitive){
+      section.open=state.otherMapsExpanded;
+      section.addEventListener("toggle",()=>{
+        if(section.isConnected)state.otherMapsExpanded=section.open;
+      });
+    }
+    root.append(section);
   };
   makeGroup("경쟁 로테이션 맵","V26 액트 6 · 패치 13.09 기준",COMPETITIVE_MAPS,true);
-  makeGroup("그 외 맵","현재 경쟁전에서는 제외 · 라인업 열람 가능",NON_ROTATION_MAPS,false);
+  makeGroup("그 외 맵","현재 경쟁전에서는 제외 · 눌러서 펼치기",NON_ROTATION_MAPS,false);
 }
 function renderSides(){
   $("sideStage").hidden=!state.map;
