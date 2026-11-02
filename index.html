@@ -156,6 +156,19 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
 @media(max-width:600px){.stage{padding:16px;border-radius:14px}.stage-header{gap:10px;margin-bottom:15px}.stage-header h2{font-size:18px}.step-num{width:35px;height:35px}.mapbtn{padding:9px 13px}.choice{padding:12px;min-height:76px;gap:10px}.choice-icon{width:36px;height:36px}.choice strong{font-size:15px}.choice-grid{gap:8px}.choice-count{font-size:11px}.thumb-grid{grid-template-columns:1fr;gap:12px}.thumb-meta{padding:13px 15px}.thumb-meta h3{font-size:15px}.modalhead{padding:14px 15px}.modalhead h2{font-size:18px}.modalbody{padding:15px}}
 @media(prefers-reduced-motion:reduce){.stage{animation:none}}
 
+
+/* Competitive-map rotation groups — both groups preserve the same navigation flow */
+.map-groups{display:grid;gap:14px}
+.map-group{padding:17px 18px 19px;border:1px solid var(--stroke);border-radius:13px;background:var(--bg)}
+.map-group.current-rotation{border-color:rgba(255,70,85,.48);background:var(--faint)}
+.map-group-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px}
+.map-group-title h3{margin:0;font-size:15px;letter-spacing:-.025em}
+.map-group-title p{margin:2px 0 0;font-size:11px;color:var(--muted)}
+.map-group-count{font-size:10px;letter-spacing:.08em;font-weight:900;color:var(--muted);white-space:nowrap}
+.current-rotation .map-group-count{color:var(--accent-light)}
+.mapbtn.rotation-map:not([aria-pressed="true"]){border-color:rgba(255,70,85,.22)}
+@media(max-width:600px){.map-group{padding:13px 12px 15px}.map-group-heading{margin-bottom:12px}.map-group-title h3{font-size:14px}.map-group-title p{font-size:10px}.map-group-count{font-size:9px}}
+
 </style>
 </head>
 <body>
@@ -198,7 +211,7 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
         <span class="step-num">01</span>
         <div><h2 id="mapTitle">맵 선택</h2><p>라인업을 확인할 맵을 골라주세요.</p></div>
       </div>
-      <div class="maplist" id="maps" role="group" aria-label="맵 선택"></div>
+      <div id="maps" class="map-groups" aria-label="맵 선택"></div>
     </section>
 
     <section class="stage" id="sideStage" aria-labelledby="sideTitle" hidden>
@@ -245,6 +258,10 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
 "use strict";
 const CATS={ghost:{label:"각귀체",icon:"👁"},molly:{label:"각불",icon:"🔥"},recon:{label:"각리콘",icon:"◎"}};
 const MAPS=["어센트","어비스","헤이븐","로터스","스플릿","선셋","서밋","바인드","브리즈","아이스박스","펄","프랙처","코로드"];
+// V26 액트 6 경쟁전 로테이션: 2026-10-13 패치 13.08, 2026-10-27 패치 13.09 확인.
+// 업데이트할 때는 아래 배열만 수정하세요. 나머지 맵은 자동으로 "그 외 맵"에 유지됩니다.
+const COMPETITIVE_MAPS=["어비스","바인드","코로드","헤이븐","로터스","선셋","서밋"];
+const NON_ROTATION_MAPS=MAPS.filter(map=>!COMPETITIVE_MAPS.includes(map));
 const THREE_SITE_MAPS=new Set(["헤이븐","로터스"]);
 const SIDE={atk:"공격",def:"수비"};
 const state={kind:"ghost",map:null,side:null,site:null,lineups:[],loading:true,error:false};
@@ -303,13 +320,27 @@ function renderCats(){
   document.querySelectorAll("[data-count]").forEach(el=>{el.textContent=count(state.lineups.filter(x=>x.kind===el.dataset.count))});
 }
 function renderMaps(){
-  const list=$("maps");list.replaceChildren();
-  MAPS.forEach(map=>{
-    const b=node("button","mapbtn",map);
-    b.type="button";b.setAttribute("aria-pressed",String(state.map===map));
-    b.addEventListener("click",()=>{if(state.map!==map){state.map=map;resetAfter("map");render()}});
-    list.append(b);
-  });
+  const root=$("maps");root.replaceChildren();
+  const makeGroup=(title,sub,maps,competitive)=>{
+    const section=node("section","map-group"+(competitive?" current-rotation":""));
+    section.setAttribute("aria-label",title);
+    const heading=node("div","map-group-heading");
+    const titleWrap=node("div","map-group-title");
+    titleWrap.append(node("h3",null,title),node("p",null,sub));
+    heading.append(titleWrap,node("span","map-group-count",maps.length+" MAPS"));
+    section.append(heading);
+    const list=node("div","maplist");list.setAttribute("role","group");list.setAttribute("aria-label",title);
+    maps.forEach(map=>{
+      const b=node("button","mapbtn",map);
+      b.type="button";b.setAttribute("aria-pressed",String(state.map===map));
+      if(competitive)b.classList.add("rotation-map");
+      b.addEventListener("click",()=>{if(state.map!==map){state.map=map;resetAfter("map");render()}});
+      list.append(b);
+    });
+    section.append(list);root.append(section);
+  };
+  makeGroup("경쟁 로테이션 맵","V26 액트 6 · 패치 13.09 기준",COMPETITIVE_MAPS,true);
+  makeGroup("그 외 맵","현재 경쟁전에서는 제외 · 라인업 열람 가능",NON_ROTATION_MAPS,false);
 }
 function renderSides(){
   $("sideStage").hidden=!state.map;
