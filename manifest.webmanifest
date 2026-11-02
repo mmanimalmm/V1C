@@ -1,5 +1,5 @@
 {
-  "name": "각 — Valorant Lineup Library",
+  "name": "각",
   "short_name": "각",
   "description": "발로란트 각귀체, 각불, 각리콘 라인업 모음",
   "start_url": "./",
@@ -9,14 +9,15 @@
   "theme_color": "#0d0f14",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "gak-icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
+      "src": "gak-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "any"
     }
   ]

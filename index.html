@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0d0f14">
-<meta name="description" content="V1C — 발로란트 각귀체, 각불, 각리콘을 맵·진영·사이트별로 모아 보는 라인업 라이브러리">
+<meta name="description" content="각 — 발로란트 각귀체, 각불, 각리콘을 맵·진영·사이트별로 모아 보는 라인업 라이브러리">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="각">
-<title>각 | VALORANT LINEUPS</title>
-<link rel="icon" type="image/png" href="icon-192.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="manifest" href="manifest.webmanifest">
+<title>각</title>
+<link rel="icon" type="image/png" sizes="192x192" href="gak-icon-192.png?v=20261102">
+<link rel="apple-touch-icon" href="gak-icon-192.png?v=20261102">
+<link rel="manifest" href="manifest.webmanifest?v=20261102">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -29,7 +29,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .topbar{border-bottom:1px solid var(--stroke);background:var(--bg);position:sticky;top:0;z-index:20;backdrop-filter:blur(12px)}
 .topbar .shell{min-height:75px;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .brand{display:inline-flex;align-items:center;gap:13px;text-decoration:none}
-.brandmark{background:var(--accent);color:#fff;border-radius:12px;padding:5px 11px;font-size:24px;letter-spacing:-.09em;font-weight:900;line-height:1.4}
+.brandmark{width:44px;height:44px;flex:none;display:block;object-fit:contain;border-radius:11px}
 .brandtext{display:flex;flex-direction:column;font-weight:800;line-height:1.35;letter-spacing:.01em}
 .brandtext small{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.14em}
 .actions{display:flex;align-items:center;gap:10px}
@@ -188,7 +188,7 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
 <header class="topbar">
   <div class="shell">
     <a class="brand" href="./" aria-label="각 홈">
-      <span class="brandmark">각</span>
+      <img class="brandmark" src="gak-icon-192.png?v=20261102" width="44" height="44" alt="">
       <span class="brandtext">LINEUP LIBRARY<small>VALORANT COLLECTION</small></span>
     </a>
     <div class="actions">
