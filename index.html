@@ -256,7 +256,7 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
     <section class="stage" id="plantStage" aria-labelledby="plantTitle" hidden>
       <div class="stage-header">
         <span class="step-num">04</span>
-        <div><h2 id="plantTitle">설치 위치 선택</h2><p>스파이크가 설치된 위치 또는 설폭 목표 지점을 선택하세요.</p></div>
+        <div><h2 id="plantTitle">설치 위치 선택</h2><p>스파이크가 설치된 위치를 선택하세요.</p></div>
       </div>
       <div class="choice-grid sites" id="plants" role="group" aria-label="설치 위치 선택"></div>
     </section>
@@ -264,7 +264,7 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
     <section class="stage" id="throwStage" aria-labelledby="throwTitle" hidden>
       <div class="stage-header">
         <span class="step-num">05</span>
-        <div><h2 id="throwTitle">던지는 위치 선택</h2><p>설폭을 던질 위치를 선택하세요.</p></div>
+        <div><h2 id="throwTitle">던지는 위치 선택</h2><p>스킬을 던질 위치를 선택하세요.</p></div>
       </div>
       <div class="choice-grid sites" id="throws" role="group" aria-label="던지는 위치 선택"></div>
     </section>
@@ -442,13 +442,13 @@ function renderMollyStages(){
   const plantBox=$("plants");plantBox.replaceChildren();
   const plants=[...new Set(atSite().map(x=>fieldsOf(x).plant))].sort((a,b)=>a.localeCompare(b,"ko"));
   if(!plants.length){
-    const empty=node("p","stage-empty","이 사이트에는 아직 등록된 설폭 위치가 없어요.");
+    const empty=node("p","stage-empty","이 사이트에는 아직 등록된 설치 위치가 없어요.");
     plantBox.append(empty);
   }
   plants.forEach(location=>{
     const b=node("button","choice site-choice");
     b.type="button";b.setAttribute("aria-pressed",String(state.plant===location));
-    b.append(node("strong",null,location+" 설폭"),node("small",null,count(atSite().filter(x=>fieldsOf(x).plant===location))));
+    b.append(node("strong",null,location),node("small",null,count(atSite().filter(x=>fieldsOf(x).plant===location))));
     b.addEventListener("click",()=>{if(state.plant!==location){state.plant=location;resetAfter("plant");render()}});
     plantBox.append(b);
   });
@@ -480,7 +480,7 @@ function openViewer(item){
   const media=$("viewerMedia");media.replaceChildren();
   const src=sourceOf(item);
   $("viewerTitle").textContent=item.region||item.title||"라인업 영상";
-  const extra=item.kind==="molly"?[fieldsOf(item).plant+" 설폭",fieldsOf(item).throwFrom+"에서"]: [];
+  const extra=item.kind==="molly"?[fieldsOf(item).plant,fieldsOf(item).throwFrom+"에서"]: [];
   $("viewerMeta").textContent=[CATS[item.kind]?.label,item.map,SIDE[item.side],siteLabel(item.site),...extra].filter(Boolean).join(" · ");
   $("viewerNote").textContent=item.note||"";
   $("viewerNote").hidden=!item.note;
@@ -512,7 +512,7 @@ function renderVideos(){
   $("videoStage").hidden=!ready;
   $("videoStep").textContent=molly?"06":"04";
   if(!ready)return;
-  $("selectionTrail").textContent=[CATS[state.kind].label,state.map,SIDE[state.side],siteLabel(state.site),...(molly?[state.plant+" 설폭",state.throwFrom]:[])].join("  /  ");
+  $("selectionTrail").textContent=[CATS[state.kind].label,state.map,SIDE[state.side],siteLabel(state.site),...(molly?[state.plant,state.throwFrom]:[])].join("  /  ");
   const list=molly?atThrow():atSite();$("videoTotal").textContent=count(list);
   const root=$("results");root.replaceChildren();
   if(state.loading||state.error||!list.length){
