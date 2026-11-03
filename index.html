@@ -557,7 +557,48 @@ $("theme").addEventListener("click",()=>{
   document.documentElement.dataset.theme=light?"light":"dark";
   try{localStorage.setItem("v1c-theme",light?"light":"dark")}catch(e){}
 });
+// 현재 페이지의 정적 코드/구조를 기억해 방문 시 최신 배포본과 비교합니다.
+// 데이터 JSON은 기존대로 매번 캐시를 우회해 별도 로드합니다.
+function pageSignature(doc){
+  const get=selector=>doc.querySelector(selector)?.outerHTML||"";
+  const scriptText=[...doc.querySelectorAll("script:not([src])")].map(s=>s.textContent).join("\n");
+  return [get("head"),get("header"),get("main"),get("footer"),get("dialog"),scriptText].join("\n---\n");
+}
+function signatureHash(value){
+  let hash=2166136261;
+  for(let i=0;i<value.length;i++)hash=Math.imul(hash^value.charCodeAt(i),16777619);
+  return (hash>>>0).toString(36);
+}
+const initialPageSignature=pageSignature(document);
+let lastPageVersionCheck=0;
+async function checkPageVersion(){
+  const now=Date.now();
+  if(now-lastPageVersionCheck<15000)return;
+  lastPageVersionCheck=now;
+  try{
+    const url=new URL("index.html",location.href);
+    url.searchParams.set("_check",String(now));
+    const response=await fetch(url.href,{cache:"no-store"});
+    if(!response.ok)return;
+    const latest=new DOMParser().parseFromString(await response.text(),"text/html");
+    // 임시 오류 페이지, 부분적으로 배포된 페이지 등으로 자동 이동하지 않습니다.
+    if(!latest.querySelector("#mapStage")||!latest.querySelector("#videoStage"))return;
+    const latestPageSignature=pageSignature(latest);
+    if(latestPageSignature===initialPageSignature)return;
+    const build=signatureHash(latestPageSignature);
+    const destination=new URL(location.href);
+    // 동일 버전으로 무한 새로고침되는 문제를 방지합니다.
+    if(destination.searchParams.get("_gak")===build)return;
+    destination.searchParams.set("_gak",build);
+    location.replace(destination.href);
+  }catch(error){
+    // 네트워크 연결이 없거나 캐시 검증이 실패해도 현재 페이지는 계속 사용합니다.
+    console.debug("새 버전 확인을 건너뛰었어요.",error);
+  }
+}
 render();
+void checkPageVersion();
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)void checkPageVersion()});
 fetch("data/lineups.json?t="+Date.now(),{cache:"no-store"})
   .then(r=>{if(!r.ok)throw Error("HTTP "+r.status);return r.json()})
   .then(data=>{
