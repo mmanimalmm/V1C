@@ -182,6 +182,13 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
 .map-chevron{font-size:22px;line-height:1;display:inline-block;color:var(--muted);transition:transform .15s}
 .other-maps[open] .map-chevron{transform:rotate(180deg)}
 @media(max-width:600px){.other-maps>.map-group-summary{padding:13px 12px}.other-maps>.maplist{padding:0 12px 15px}.map-group-suffix{gap:7px}}
+
+/* 각불 drill-down: installation spot → throwing spot → video */
+.stage-empty{color:var(--muted);margin:0;font-size:13px}
+.pending-media{opacity:.87}
+.pending-media .play-pill{background:rgba(126,135,151,.94);box-shadow:none}
+.pending-notice{color:var(--accent-light)!important}
+
 </style>
 </head>
 <body>
@@ -246,9 +253,25 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
       <div class="choice-grid sites" id="sites" role="group" aria-label="사이트 선택"></div>
     </section>
 
+    <section class="stage" id="plantStage" aria-labelledby="plantTitle" hidden>
+      <div class="stage-header">
+        <span class="step-num">04</span>
+        <div><h2 id="plantTitle">설치 위치 선택</h2><p>스파이크가 설치된 위치 또는 설폭 목표 지점을 선택하세요.</p></div>
+      </div>
+      <div class="choice-grid sites" id="plants" role="group" aria-label="설치 위치 선택"></div>
+    </section>
+
+    <section class="stage" id="throwStage" aria-labelledby="throwTitle" hidden>
+      <div class="stage-header">
+        <span class="step-num">05</span>
+        <div><h2 id="throwTitle">던지는 위치 선택</h2><p>설폭을 던질 위치를 선택하세요.</p></div>
+      </div>
+      <div class="choice-grid sites" id="throws" role="group" aria-label="던지는 위치 선택"></div>
+    </section>
+
     <section class="stage" id="videoStage" aria-labelledby="videoTitle" hidden>
       <div class="stage-header video-heading">
-        <span class="step-num">04</span>
+        <span class="step-num" id="videoStep">04</span>
         <div><h2 id="videoTitle">영상 라인업</h2><p id="selectionTrail"></p></div>
         <span class="video-total" id="videoTotal" aria-live="polite"></span>
       </div>
@@ -277,7 +300,7 @@ const COMPETITIVE_MAPS=["어비스","바인드","코로드","헤이븐","로터�
 const NON_ROTATION_MAPS=MAPS.filter(map=>!COMPETITIVE_MAPS.includes(map));
 const THREE_SITE_MAPS=new Set(["헤이븐","로터스"]);
 const SIDE={atk:"공격",def:"수비"};
-const state={kind:"ghost",map:null,side:null,site:null,otherMapsExpanded:false,lineups:[],loading:true,error:false};
+const state={kind:"ghost",map:null,side:null,site:null,plant:null,throwFrom:null,otherMapsExpanded:false,lineups:[],loading:true,error:false};
 const $=id=>document.getElementById(id);
 function node(tag,cls,value){const e=document.createElement(tag);if(cls)e.className=cls;if(value!==undefined)e.textContent=String(value);return e}
 const count=list=>list.length+"개";
@@ -323,10 +346,24 @@ function byKind(){return state.lineups.filter(x=>x.kind===state.kind)}
 function byMap(){return byKind().filter(x=>x.map===state.map)}
 function bySide(){return byMap().filter(x=>x.side===state.side)}
 function atSite(){return bySide().filter(x=>x.site===state.site)}
+function fieldsOf(item){
+  if(item.kind!=="molly")return {plant:"",throwFrom:""};
+  // Compatible with older item schemas; name is usually 'A에서 B설폭.mp4'.
+  const name=String(item.title||item.filename||"").replace(/\.(mp4|mov|webm)$/i,"").replace(/\s*\(\d+\)$/,"");
+  const match=name.match(/^(.+?)에서\s*(.+?)\s*설폭$/);
+  return {
+    plant:String(item.plantAt||item.plantLocation||item.installAt||(match&&match[2])||"미분류").trim(),
+    throwFrom:String(item.throwFrom||item.throwLocation||(match&&match[1])||item.region||"미분류").trim()
+  };
+}
+function atPlant(){return atSite().filter(x=>fieldsOf(x).plant===state.plant)}
+function atThrow(){return atPlant().filter(x=>fieldsOf(x).throwFrom===state.throwFrom)}
 function resetAfter(level){
-  if(level==="kind"){state.map=null;state.side=null;state.site=null}
-  if(level==="map"){state.side=null;state.site=null}
-  if(level==="side"){state.site=null}
+  if(level==="kind"){state.map=null;state.side=null;state.site=null;state.plant=null;state.throwFrom=null}
+  if(level==="map"){state.side=null;state.site=null;state.plant=null;state.throwFrom=null}
+  if(level==="side"){state.site=null;state.plant=null;state.throwFrom=null}
+  if(level==="site"){state.plant=null;state.throwFrom=null}
+  if(level==="plant"){state.throwFrom=null}
 }
 function renderCats(){
   document.querySelectorAll("[data-kind]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.kind===state.kind)));
@@ -387,8 +424,37 @@ function renderSites(){
     const b=node("button","choice site-choice");
     b.type="button";b.setAttribute("aria-pressed",String(state.site===site));
     b.append(node("strong",null,siteLabel(site)),node("small",null,count(bySide().filter(x=>x.site===site))));
-    b.addEventListener("click",()=>{state.site=site;render()});
+    b.addEventListener("click",()=>{if(state.site!==site){state.site=site;resetAfter("site");render()}});
     container.append(b);
+  });
+}
+function renderMollyStages(){
+  const isMolly=state.kind==="molly";
+  $("plantStage").hidden=!isMolly||!state.site;
+  $("throwStage").hidden=!isMolly||!state.site||!state.plant;
+  if(!isMolly||!state.site)return;
+  const plantBox=$("plants");plantBox.replaceChildren();
+  const plants=[...new Set(atSite().map(x=>fieldsOf(x).plant))].sort((a,b)=>a.localeCompare(b,"ko"));
+  if(!plants.length){
+    const empty=node("p","stage-empty","이 사이트에는 아직 등록된 설폭 위치가 없어요.");
+    plantBox.append(empty);
+  }
+  plants.forEach(location=>{
+    const b=node("button","choice site-choice");
+    b.type="button";b.setAttribute("aria-pressed",String(state.plant===location));
+    b.append(node("strong",null,location+" 설폭"),node("small",null,count(atSite().filter(x=>fieldsOf(x).plant===location))));
+    b.addEventListener("click",()=>{if(state.plant!==location){state.plant=location;resetAfter("plant");render()}});
+    plantBox.append(b);
+  });
+  if(!state.plant)return;
+  const throwBox=$("throws");throwBox.replaceChildren();
+  const places=[...new Set(atPlant().map(x=>fieldsOf(x).throwFrom))].sort((a,b)=>a.localeCompare(b,"ko"));
+  places.forEach(location=>{
+    const b=node("button","choice site-choice");
+    b.type="button";b.setAttribute("aria-pressed",String(state.throwFrom===location));
+    b.append(node("strong",null,location),node("small",null,count(atPlant().filter(x=>fieldsOf(x).throwFrom===location))));
+    b.addEventListener("click",()=>{state.throwFrom=location;render()});
+    throwBox.append(b);
   });
 }
 function appendPreview(holder,item){
@@ -408,7 +474,8 @@ function openViewer(item){
   const media=$("viewerMedia");media.replaceChildren();
   const src=sourceOf(item);
   $("viewerTitle").textContent=item.region||item.title||"라인업 영상";
-  $("viewerMeta").textContent=[CATS[item.kind]?.label,item.map,SIDE[item.side],siteLabel(item.site)].filter(Boolean).join(" · ");
+  const extra=item.kind==="molly"?[fieldsOf(item).plant+" 설폭",fieldsOf(item).throwFrom+"에서"]: [];
+  $("viewerMeta").textContent=[CATS[item.kind]?.label,item.map,SIDE[item.side],siteLabel(item.site),...extra].filter(Boolean).join(" · ");
   $("viewerNote").textContent=item.note||"";
   $("viewerNote").hidden=!item.note;
   const link=$("viewerLink");link.hidden=!src.original;
@@ -434,10 +501,13 @@ function openViewer(item){
   const video=media.querySelector("video");if(video){const p=video.play();if(p&&p.catch)p.catch(()=>{})}
 }
 function renderVideos(){
-  $("videoStage").hidden=!state.site;
-  if(!state.site)return;
-  $("selectionTrail").textContent=[CATS[state.kind].label,state.map,SIDE[state.side],siteLabel(state.site)].join("  /  ");
-  const list=atSite();$("videoTotal").textContent=count(list);
+  const molly=state.kind==="molly";
+  const ready=!!state.site&&(!molly||(!!state.plant&&!!state.throwFrom));
+  $("videoStage").hidden=!ready;
+  $("videoStep").textContent=molly?"06":"04";
+  if(!ready)return;
+  $("selectionTrail").textContent=[CATS[state.kind].label,state.map,SIDE[state.side],siteLabel(state.site),...(molly?[state.plant+" 설폭",state.throwFrom]:[])].join("  /  ");
+  const list=molly?atThrow():atSite();$("videoTotal").textContent=count(list);
   const root=$("results");root.replaceChildren();
   if(state.loading||state.error||!list.length){
     const empty=node("div","empty");
@@ -447,17 +517,20 @@ function renderVideos(){
     root.append(empty);return;
   }
   list.forEach(item=>{
-    const b=node("button","thumb-card");b.type="button";b.setAttribute("aria-label",(item.region||item.title||"라인업")+" 영상 열기");
+    const src=sourceOf(item);const pending=src.type==="none";
+    const b=node("button","thumb-card"+(pending?" pending-media":""));
+    b.type="button";b.setAttribute("aria-label",(item.title||item.region||"라인업")+(pending?" 영상 등록 대기":" 영상 열기"));
     const picture=node("div","thumb-picture");appendPreview(picture,item);
-    picture.append(node("span","play-pill","▶"));
+    picture.append(node("span","play-pill",pending?"…":"▶"));
     const meta=node("div","thumb-meta");
-    meta.append(node("h3",null,item.region||item.title||"지역명 미등록"));
-    if(item.region&&item.title&&item.title!==item.region)meta.append(node("p",null,item.title));
+    meta.append(node("h3",null,item.title||item.region||"지역명 미등록"));
+    if(pending)meta.append(node("p","pending-notice","영상 파일 연결 대기"));
+    else if(item.region&&item.title&&item.title!==item.region)meta.append(node("p",null,item.region));
     b.append(picture,meta);b.addEventListener("click",()=>openViewer(item));root.append(b);
   });
 }
 function render(){
-  renderCats();renderMaps();renderSides();renderSites();renderVideos();
+  renderCats();renderMaps();renderSides();renderSites();renderMollyStages();renderVideos();
 }
 document.querySelectorAll("[data-kind]").forEach(b=>b.addEventListener("click",()=>{
   if(state.kind!==b.dataset.kind){state.kind=b.dataset.kind;resetAfter("kind");render()}

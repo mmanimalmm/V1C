@@ -1,5 +1,21 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-02",
-  "lineups": []
+  "updatedAt": "2026-11-03",
+  "lineups": [
+    {
+      "id": "bind-a-molly-lamps-to-main-001",
+      "kind": "molly",
+      "map": "바인드",
+      "side": "atk",
+      "site": "A",
+      "region": "램프",
+      "throwFrom": "램프",
+      "plantAt": "메인",
+      "title": "램프에서 메인설폭(1)",
+      "filename": "램프에서 메인설폭(1).mp4",
+      "video": "",
+      "thumbnail": "",
+      "note": "영상 파일 연결 전. 현재 파일명과 위치 정보만 등록된 상태입니다."
+    }
+  ]
 }
