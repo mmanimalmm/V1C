@@ -428,8 +428,14 @@ function renderSites(){
     container.append(b);
   });
 }
+function hasDetailedMolly(){
+  return state.kind==="molly"&&atSite().some(item=>{
+    const f=fieldsOf(item);
+    return f.plant!=="미분류"&&f.throwFrom!=="미분류";
+  });
+}
 function renderMollyStages(){
-  const isMolly=state.kind==="molly";
+  const isMolly=hasDetailedMolly();
   $("plantStage").hidden=!isMolly||!state.site;
   $("throwStage").hidden=!isMolly||!state.site||!state.plant;
   if(!isMolly||!state.site)return;
@@ -501,7 +507,7 @@ function openViewer(item){
   const video=media.querySelector("video");if(video){const p=video.play();if(p&&p.catch)p.catch(()=>{})}
 }
 function renderVideos(){
-  const molly=state.kind==="molly";
+  const molly=hasDetailedMolly();
   const ready=!!state.site&&(!molly||(!!state.plant&&!!state.throwFrom));
   $("videoStage").hidden=!ready;
   $("videoStep").textContent=molly?"06":"04";
