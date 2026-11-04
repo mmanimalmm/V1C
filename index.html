@@ -256,7 +256,7 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
     <section class="stage" id="plantStage" aria-labelledby="plantTitle" hidden>
       <div class="stage-header">
         <span class="step-num">04</span>
-        <div><h2 id="plantTitle">설치 위치 선택</h2><p>스파이크가 설치된 위치 또는 설폭 목표 지점을 선택하세요.</p></div>
+        <div><h2 id="plantTitle">설치 위치 선택</h2><p>스파이크가 설치된 위치를 선택하세요.</p></div>
       </div>
       <div class="choice-grid sites" id="plants" role="group" aria-label="설치 위치 선택"></div>
     </section>
@@ -264,7 +264,7 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
     <section class="stage" id="throwStage" aria-labelledby="throwTitle" hidden>
       <div class="stage-header">
         <span class="step-num">05</span>
-        <div><h2 id="throwTitle">던지는 위치 선택</h2><p>설폭을 던질 위치를 선택하세요.</p></div>
+        <div><h2 id="throwTitle">던지는 위치 선택</h2><p>스킬을 던질 위치를 선택하세요.</p></div>
       </div>
       <div class="choice-grid sites" id="throws" role="group" aria-label="던지는 위치 선택"></div>
     </section>
@@ -442,13 +442,13 @@ function renderMollyStages(){
   const plantBox=$("plants");plantBox.replaceChildren();
   const plants=[...new Set(atSite().map(x=>fieldsOf(x).plant))].sort((a,b)=>a.localeCompare(b,"ko"));
   if(!plants.length){
-    const empty=node("p","stage-empty","이 사이트에는 아직 등록된 설폭 위치가 없어요.");
+    const empty=node("p","stage-empty","이 사이트에는 아직 등록된 설치 위치가 없어요.");
     plantBox.append(empty);
   }
   plants.forEach(location=>{
     const b=node("button","choice site-choice");
     b.type="button";b.setAttribute("aria-pressed",String(state.plant===location));
-    b.append(node("strong",null,location+" 설폭"),node("small",null,count(atSite().filter(x=>fieldsOf(x).plant===location))));
+    b.append(node("strong",null,location),node("small",null,count(atSite().filter(x=>fieldsOf(x).plant===location))));
     b.addEventListener("click",()=>{if(state.plant!==location){state.plant=location;resetAfter("plant");render()}});
     plantBox.append(b);
   });
@@ -480,7 +480,7 @@ function openViewer(item){
   const media=$("viewerMedia");media.replaceChildren();
   const src=sourceOf(item);
   $("viewerTitle").textContent=item.region||item.title||"라인업 영상";
-  const extra=item.kind==="molly"?[fieldsOf(item).plant+" 설폭",fieldsOf(item).throwFrom+"에서"]: [];
+  const extra=item.kind==="molly"?[fieldsOf(item).plant,fieldsOf(item).throwFrom+"에서"]: [];
   $("viewerMeta").textContent=[CATS[item.kind]?.label,item.map,SIDE[item.side],siteLabel(item.site),...extra].filter(Boolean).join(" · ");
   $("viewerNote").textContent=item.note||"";
   $("viewerNote").hidden=!item.note;
@@ -512,7 +512,7 @@ function renderVideos(){
   $("videoStage").hidden=!ready;
   $("videoStep").textContent=molly?"06":"04";
   if(!ready)return;
-  $("selectionTrail").textContent=[CATS[state.kind].label,state.map,SIDE[state.side],siteLabel(state.site),...(molly?[state.plant+" 설폭",state.throwFrom]:[])].join("  /  ");
+  $("selectionTrail").textContent=[CATS[state.kind].label,state.map,SIDE[state.side],siteLabel(state.site),...(molly?[state.plant,state.throwFrom]:[])].join("  /  ");
   const list=molly?atThrow():atSite();$("videoTotal").textContent=count(list);
   const root=$("results");root.replaceChildren();
   if(state.loading||state.error||!list.length){
@@ -557,7 +557,48 @@ $("theme").addEventListener("click",()=>{
   document.documentElement.dataset.theme=light?"light":"dark";
   try{localStorage.setItem("v1c-theme",light?"light":"dark")}catch(e){}
 });
+// 현재 페이지의 정적 코드/구조를 기억해 방문 시 최신 배포본과 비교합니다.
+// 데이터 JSON은 기존대로 매번 캐시를 우회해 별도 로드합니다.
+function pageSignature(doc){
+  const get=selector=>doc.querySelector(selector)?.outerHTML||"";
+  const scriptText=[...doc.querySelectorAll("script:not([src])")].map(s=>s.textContent).join("\n");
+  return [get("head"),get("header"),get("main"),get("footer"),get("dialog"),scriptText].join("\n---\n");
+}
+function signatureHash(value){
+  let hash=2166136261;
+  for(let i=0;i<value.length;i++)hash=Math.imul(hash^value.charCodeAt(i),16777619);
+  return (hash>>>0).toString(36);
+}
+const initialPageSignature=pageSignature(document);
+let lastPageVersionCheck=0;
+async function checkPageVersion(){
+  const now=Date.now();
+  if(now-lastPageVersionCheck<15000)return;
+  lastPageVersionCheck=now;
+  try{
+    const url=new URL("index.html",location.href);
+    url.searchParams.set("_check",String(now));
+    const response=await fetch(url.href,{cache:"no-store"});
+    if(!response.ok)return;
+    const latest=new DOMParser().parseFromString(await response.text(),"text/html");
+    // 임시 오류 페이지, 부분적으로 배포된 페이지 등으로 자동 이동하지 않습니다.
+    if(!latest.querySelector("#mapStage")||!latest.querySelector("#videoStage"))return;
+    const latestPageSignature=pageSignature(latest);
+    if(latestPageSignature===initialPageSignature)return;
+    const build=signatureHash(latestPageSignature);
+    const destination=new URL(location.href);
+    // 동일 버전으로 무한 새로고침되는 문제를 방지합니다.
+    if(destination.searchParams.get("_gak")===build)return;
+    destination.searchParams.set("_gak",build);
+    location.replace(destination.href);
+  }catch(error){
+    // 네트워크 연결이 없거나 캐시 검증이 실패해도 현재 페이지는 계속 사용합니다.
+    console.debug("새 버전 확인을 건너뛰었어요.",error);
+  }
+}
 render();
+void checkPageVersion();
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)void checkPageVersion()});
 fetch("data/lineups.json?t="+Date.now(),{cache:"no-store"})
   .then(r=>{if(!r.ok)throw Error("HTTP "+r.status);return r.json()})
   .then(data=>{
