@@ -189,6 +189,12 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
 .pending-media .play-pill{background:rgba(126,135,151,.94);box-shadow:none}
 .pending-notice{color:var(--accent-light)!important}
 
+
+/* 최근 추가된 영상 표시 (등록일로부터 14일) */
+.new-tag{display:inline-flex;align-items:center;justify-content:center;flex:none;white-space:nowrap;border-radius:7px;background:var(--accent);color:#fff;padding:2px 5px;font-size:9px;font-weight:900;letter-spacing:.035em;line-height:1.35;vertical-align:middle}
+.cat-name .new-tag{margin-left:8px;vertical-align:3px}
+.mapbtn{display:inline-flex;align-items:center;gap:7px}
+.mapbtn .new-tag{font-size:9px;padding:2px 5px}
 </style>
 </head>
 <body>
@@ -304,6 +310,19 @@ const state={kind:"ghost",map:null,side:null,site:null,plant:null,throwFrom:null
 const $=id=>document.getElementById(id);
 function node(tag,cls,value){const e=document.createElement(tag);if(cls)e.className=cls;if(value!==undefined)e.textContent=String(value);return e}
 const count=list=>list.length+"개";
+const NEW_VIDEO_DAYS=14;
+function isNewVideo(item){
+  const value=String(item.addedAt||"");
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;
+  const timestamp=Date.parse(value+"T00:00:00+09:00");
+  const elapsed=Date.now()-timestamp;
+  return Number.isFinite(timestamp)&&elapsed>=0&&elapsed<NEW_VIDEO_DAYS*24*60*60*1000;
+}
+function newTag(){
+  const el=node("span","new-tag","NEW!");
+  el.setAttribute("aria-label","최근 등록된 영상");
+  return el;
+}
 function checkUrl(value){
   if(typeof value!=="string"||!value.trim())return null;
   try{const u=new URL(value,location.href);return ["http:","https:"].includes(u.protocol)?u:null}catch(e){return null}
@@ -366,7 +385,14 @@ function resetAfter(level){
   if(level==="plant"){state.throwFrom=null}
 }
 function renderCats(){
-  document.querySelectorAll("[data-kind]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.kind===state.kind)));
+  document.querySelectorAll("[data-kind]").forEach(b=>{
+    b.setAttribute("aria-pressed",String(b.dataset.kind===state.kind));
+    const name=b.querySelector(".cat-name");
+    if(name){
+      name.querySelector(".new-tag")?.remove();
+      if(state.lineups.some(item=>item.kind===b.dataset.kind&&isNewVideo(item)))name.append(newTag());
+    }
+  });
   document.querySelectorAll("[data-count]").forEach(el=>{el.textContent=count(state.lineups.filter(x=>x.kind===el.dataset.count))});
 }
 function renderMaps(){
@@ -387,6 +413,7 @@ function renderMaps(){
       const b=node("button","mapbtn",map);
       b.type="button";b.setAttribute("aria-pressed",String(state.map===map));
       if(competitive)b.classList.add("rotation-map");
+      if(byKind().some(item=>item.map===map&&isNewVideo(item)))b.append(newTag());
       b.addEventListener("click",()=>{if(state.map!==map){state.map=map;resetAfter("map");render()}});
       list.append(b);
     });
