@@ -25,6 +25,24 @@ button{cursor:pointer}
 a{color:inherit}
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 [hidden]{display:none!important}
+body{isolation:isolate}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background-image:var(--agent-portrait);
+  background-repeat:no-repeat;
+  background-position:right top 64px;
+  background-size:auto min(92vh,920px);
+  opacity:.22;
+}
+body[data-kind="ghost"]{--agent-portrait:url("https://media.valorant-api.com/agents/dade69b4-4f5a-8528-247b-219e5a1facd6/fullportrait.png")}
+body[data-kind="molly"]{--agent-portrait:url("https://media.valorant-api.com/agents/9f0d8ba9-4140-b941-57d3-a7ad57c6b417/fullportrait.png")}
+body[data-kind="recon"]{--agent-portrait:url("https://media.valorant-api.com/agents/320b2a48-4d9b-a075-30f1-1f93a9b638fa/fullportrait.png")}
+:root[data-theme="light"] body::before{opacity:.15}
+@media(max-width:600px){body::before{background-size:auto 74vh;background-position:center top 64px}}
 .shell{width:min(1160px,calc(100% - 44px));margin:auto}
 .topbar{border-bottom:1px solid var(--stroke);background:var(--bg);position:sticky;top:0;z-index:20;backdrop-filter:blur(12px)}
 .topbar .shell{min-height:75px;display:flex;align-items:center;justify-content:space-between;gap:16px}
@@ -197,7 +215,7 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
 .mapbtn .new-tag{font-size:9px;padding:2px 5px}
 </style>
 </head>
-<body>
+<body data-kind="ghost">
 <header class="topbar">
   <div class="shell">
     <a class="brand" href="./" aria-label="이젠 나도 각폭러? 홈">
@@ -563,6 +581,7 @@ function renderVideos(){
   });
 }
 function render(){
+  document.body.dataset.kind=state.kind;
   renderCats();renderMaps();renderSides();renderSites();renderMollyStages();renderVideos();
 }
 document.querySelectorAll("[data-kind]").forEach(b=>b.addEventListener("click",()=>{
