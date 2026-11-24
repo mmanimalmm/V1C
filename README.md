@@ -1,8 +1,8 @@
-# 각 — Valorant Lineup Library
+# 이젠 나도 각폭러? — Valorant Lineup Library
 
 발로란트 **각귀체 / 각불 / 각리콘** 라인업 영상을 맵·진영·사이트 순서대로 찾아보는 개인용 웹사이트입니다.
 
-**사이트:** https://mmanimalmm.github.io/V1C/ (표시 이름은 '각'이며, GitHub 저장소명/URL은 V1C 그대로 유지합니다.)
+**사이트:** https://mmanimalmm.github.io/V1C/ (표시 이름은 '이젠 나도 각폭러?'이며, GitHub 저장소명/URL은 V1C 그대로 유지합니다.)
 
 ## 화면 이용 순서
 1. **카테고리** 선택 — 각귀체, 각불, 각리콘
