@@ -168,7 +168,19 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
 .no-video{padding:45px 20px;text-align:center;color:#bec6d2;font-size:14px}
 .modalmedia iframe{width:100%;display:block;aspect-ratio:16/9;border:0}
 .modalmedia video{width:100%;height:auto;max-height:65dvh;display:block;background:#050507}
-#viewer{width:min(960px,calc(100% - 24px))}
+#viewer{width:min(1200px,calc(100% - 24px))}
+.viewer-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,26%)}
+.viewer-info{padding:16px;background:var(--surface2);min-width:0}
+.viewer-info h3{margin:0 0 10px}
+.map-frame{position:relative;background:#242b36;border-radius:8px}
+.map-frame img{display:block;width:100%;height:auto}
+.map-pin{position:absolute;transform:translate(-50%,-50%);border-radius:50%;width:15px;height:15px;border:2px solid white;box-shadow:0 0 0 1px #111}
+.launch{background:#2476bb}.landing{background:#ab402c;border-radius:2px}
+.map-key,.shot-facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.map-key:empty,.shot-facts:empty{display:none}
+.map-key span,.shot-facts span{padding:2px 8px;border-radius:4px;font-size:13px;font-weight:700}
+.map-key span{color:white}.shot-facts span{background:var(--surface);color:var(--ink)}
+@media(max-width:740px){.viewer-layout{grid-template-columns:1fr}.map-frame{max-width:280px;margin:auto}}
 #viewerNote[hidden]{display:none}
 @media(max-width:850px){.thumb-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.choice-grid.sites{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.stage{padding:16px;border-radius:14px}.stage-header{gap:10px;margin-bottom:15px}.stage-header h2{font-size:18px}.step-num{width:35px;height:35px}.mapbtn{padding:9px 13px}.choice{padding:12px;min-height:76px;gap:10px}.choice-icon{width:36px;height:36px}.choice strong{font-size:15px}.choice-grid{gap:8px}.choice-count{font-size:11px}.thumb-grid{grid-template-columns:1fr;gap:12px}.thumb-meta{padding:13px 15px}.thumb-meta h3{font-size:15px}.modalhead{padding:14px 15px}.modalhead h2{font-size:18px}.modalbody{padding:15px}}
@@ -310,7 +322,10 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
     <div><p id="viewerMeta"></p><h2 id="viewerTitle"></h2></div>
     <button class="modalclose" type="button" id="closeViewer" aria-label="영상 닫기">×</button>
   </div>
-  <div class="modalmedia" id="viewerMedia"></div>
+  <div class="viewer-layout">
+    <div class="modalmedia" id="viewerMedia"></div>
+    <aside class="viewer-info" id="viewerInfo" aria-label="라인업 정보"></aside>
+  </div>
   <div class="modalbody"><p id="viewerNote"></p><a class="external" id="viewerLink" target="_blank" rel="noopener noreferrer" hidden>원본 링크 열기 ↗</a></div>
 </dialog>
 <script>
@@ -403,7 +418,7 @@ function resetAfter(level){
   if(level==="plant"){state.throwFrom=null}
 }
 function renderCats(){
-  document.querySelectorAll("[data-kind]").forEach(b=>{
+  document.querySelectorAll("button[data-kind]").forEach(b=>{
     b.setAttribute("aria-pressed",String(b.dataset.kind===state.kind));
     const name=b.querySelector(".cat-name");
     if(name){
@@ -521,7 +536,57 @@ function appendPreview(holder,item){
     video.setAttribute("aria-hidden","true");holder.append(video);
   }else holder.append(node("span","symbol",CATS[item.kind]?.icon||"▶"));
 }
+const MINIMAPS={
+  "어센트": "ascent",
+  "스플릿": "split",
+  "프랙처": "fracture",
+  "바인드": "bind",
+  "브리즈": "breeze",
+  "어비스": "abyss",
+  "로터스": "lotus",
+  "선셋": "sunset",
+  "펄": "pearl",
+  "서밋": "summit",
+  "아이스박스": "icebox",
+  "코로드": "corrode",
+  "헤이븐": "haven"
+};
+function renderViewerInfo(item){
+  const panel=$("viewerInfo");
+  panel.replaceChildren();
+  const map=MINIMAPS[item.map];
+  const shot=item.shot||{};
+  if(map){
+    panel.append(node("h3",null,item.map+" 미니맵"));
+    const frame=node("div","map-frame"), image=node("img"), key=node("div","map-key");
+    image.alt=item.map+" 미니맵";
+    image.src="media/minimaps/"+map+".png";
+    frame.append(image);
+    for(const [field,label] of [["launch","발사"],["landing","착지"]]){
+      const point=shot[field];
+      if(!Array.isArray(point)||point.length!==2||!point.every(v=>Number.isFinite(v)&&v>=0&&v<=100))continue;
+      const pin=node("span","map-pin "+field);
+      pin.title=label;
+      pin.style.left=point[0]+"%";
+      pin.style.top=point[1]+"%";
+      frame.append(pin);
+      key.append(node("span",field,label));
+    }
+    panel.append(frame,key);
+  }
+  const facts=node("div","shot-facts");
+  if(item.kind==="molly"){
+    if(typeof shot.crouch==="boolean")facts.append(node("span",null,shot.crouch?"앉기 O":"앉기 X"));
+    if(shot.jump===true)facts.append(node("span",null,"점프 O"));
+  }
+  if(item.kind==="recon"){
+    if([1,2,"full"].includes(shot.charge))facts.append(node("span",null,shot.charge==="full"?"풀차지":shot.charge+"차지"));
+    if([0,1,2].includes(shot.bounces))facts.append(node("span",null,shot.bounces===0?"튕기기 없음":shot.bounces+"회 튕기기"));
+  }
+  panel.append(facts);
+}
 function openViewer(item){
+  renderViewerInfo(item);
   const media=$("viewerMedia");media.replaceChildren();
   const src=sourceOf(item);
   $("viewerTitle").textContent=item.region||item.title||"라인업 영상";
@@ -584,7 +649,7 @@ function render(){
   document.body.dataset.kind=state.kind;
   renderCats();renderMaps();renderSides();renderSites();renderMollyStages();renderVideos();
 }
-document.querySelectorAll("[data-kind]").forEach(b=>b.addEventListener("click",()=>{
+document.querySelectorAll("button[data-kind]").forEach(b=>b.addEventListener("click",()=>{
   if(state.kind!==b.dataset.kind){state.kind=b.dataset.kind;resetAfter("kind");render()}
 }));
 document.querySelectorAll("[data-side]").forEach(b=>b.addEventListener("click",()=>{
