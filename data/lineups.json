@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-05",
+  "updatedAt": "2026-11-24",
   "lineups": [
     {
       "id": "bind-a-molly-01",
@@ -419,6 +419,54 @@
       "thumbnail": "",
       "note": "",
       "addedAt": "2026-11-05"
+    },
+    {
+      "id": "summit-atk-a-molly-01",
+      "kind": "molly",
+      "map": "서밋",
+      "side": "atk",
+      "site": "A",
+      "plantAt": "A",
+      "throwFrom": "A메인",
+      "title": "A메인에서 A",
+      "region": "A메인에서 A",
+      "filename": "A메인에서 A.mp4",
+      "video": "각불영상파일/서밋_각불/A사이트/A메인에서 A.mp4",
+      "thumbnail": "",
+      "note": "",
+      "addedAt": "2026-11-24"
+    },
+    {
+      "id": "summit-atk-a-molly-02",
+      "kind": "molly",
+      "map": "서밋",
+      "side": "atk",
+      "site": "A",
+      "plantAt": "A",
+      "throwFrom": "그림",
+      "title": "그림에서 A",
+      "region": "그림에서 A",
+      "filename": "그림에서 A 설.mp4",
+      "video": "각불영상파일/서밋_각불/A사이트/그림에서 A 설.mp4",
+      "thumbnail": "",
+      "note": "",
+      "addedAt": "2026-11-24"
+    },
+    {
+      "id": "summit-atk-a-molly-03",
+      "kind": "molly",
+      "map": "서밋",
+      "side": "atk",
+      "site": "A",
+      "plantAt": "A",
+      "throwFrom": "미드",
+      "title": "미드에서 A",
+      "region": "미드에서 A",
+      "filename": "미드에서 A.mp4",
+      "video": "각불영상파일/서밋_각불/A사이트/미드에서 A.mp4",
+      "thumbnail": "",
+      "note": "",
+      "addedAt": "2026-11-24"
     }
   ]
 }
