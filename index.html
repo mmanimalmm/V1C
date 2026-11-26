@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0d0f14">
-<meta name="description" content="이젠 나도 각폭러? — 발로란트 각귀체, 각불, 각리콘을 맵·진영·사이트별로 모아 보는 라인업 라이브러리">
+<meta name="description" content="이젠 나도 각폭러? — 발로란트 각귀체, 각불, 각리콘, 사이퍼 라인업을 맵·진영·사이트별로 모아 보는 라인업 라이브러리">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="이젠 나도 각폭러?">
 <title>이젠 나도 각폭러?</title>
@@ -40,6 +40,7 @@ body::before{
 }
 body[data-kind="ghost"]{--agent-portrait:url("https://media.valorant-api.com/agents/dade69b4-4f5a-8528-247b-219e5a1facd6/fullportrait.png")}
 body[data-kind="molly"]{--agent-portrait:url("https://media.valorant-api.com/agents/9f0d8ba9-4140-b941-57d3-a7ad57c6b417/fullportrait.png")}
+body[data-kind="cypher"]{--agent-portrait:url("https://media.valorant-api.com/agents/117ed9e3-49f3-6512-3ccf-0cada7e3823b/fullportrait.png")}
 body[data-kind="recon"]{--agent-portrait:url("https://media.valorant-api.com/agents/320b2a48-4d9b-a075-30f1-1f93a9b638fa/fullportrait.png")}
 :root[data-theme="light"] body::before{opacity:.15}
 @media(max-width:600px){body::before{background-size:auto 74vh;background-position:center top 64px}}
@@ -60,7 +61,7 @@ body[data-kind="recon"]{--agent-portrait:url("https://media.valorant-api.com/age
 .hero h1{font-size:clamp(29px,4.8vw,55px);letter-spacing:-.05em;line-height:1.22;margin:15px 0 11px;font-weight:900}
 .hero h1 em{font-style:normal;color:var(--accent)}
 .hero p{max-width:630px;margin:0;color:var(--muted);font-size:15px}
-.category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin:7px 0 39px}
+.category-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin:7px 0 39px}
 .category{min-width:0;text-align:left;background:var(--card);border:1px solid var(--stroke);border-radius:18px;padding:23px 21px 20px;position:relative;overflow:hidden;transition:transform .15s,border-color .15s,background .15s}
 .category:hover{transform:translateY(-2px);border-color:var(--accent)}
 .category[aria-selected="true"]{background:var(--faint);border-color:var(--accent);box-shadow:inset 0 0 0 1px rgba(255,70,85,.22)}
@@ -125,7 +126,7 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
 .modalbody p{white-space:pre-wrap;margin:8px 0 17px;line-height:1.75;color:var(--muted)}
 .external{display:inline-flex;padding:11px 15px;background:var(--accent);color:#fff;text-decoration:none;border-radius:9px;font-weight:800}
 @media(max-width:850px){.results{grid-template-columns:repeat(2,minmax(0,1fr))}.controls{grid-template-columns:1fr 1fr}.clear{width:100%}}
-@media(max-width:600px){.shell{width:calc(100% - 28px)}.topbar .shell{min-height:64px}.brandtext{font-size:12px}.brandtext small{font-size:9px}.actions{gap:6px}.round{font-size:11px;padding:0 9px}.hero{padding:33px 0 26px}.hero p{font-size:13px}.category-grid{gap:8px;margin-bottom:29px}.category{padding:15px 12px;border-radius:13px}.cat-icon{width:36px;height:36px;font-size:19px}.cat-count{font-size:10px}.cat-name{font-size:16px;margin-top:12px}.cat-desc{font-size:10px}.filters{padding:14px;border-radius:13px}.mapbtn{padding:7px 11px}.results{grid-template-columns:1fr;gap:12px}.controls{grid-template-columns:1fr 1fr}.controls .searchfield{grid-column:1/-1}.lineup{display:grid;grid-template-columns:125px 1fr}.preview{height:100%;min-height:170px}.lineup-body{padding:15px}.lineup h3{font-size:15px}.lineup p{font-size:11px}.cardbottom{margin-top:7px}}
+@media(max-width:600px){.shell{width:calc(100% - 28px)}.topbar .shell{min-height:64px}.brandtext{font-size:12px}.brandtext small{font-size:9px}.actions{gap:6px}.round{font-size:11px;padding:0 9px}.hero{padding:33px 0 26px}.hero p{font-size:13px}.category-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:29px}.category{padding:15px 12px;border-radius:13px}.cat-icon{width:36px;height:36px;font-size:19px}.cat-count{font-size:10px}.cat-name{font-size:16px;margin-top:12px}.cat-desc{font-size:10px}.filters{padding:14px;border-radius:13px}.mapbtn{padding:7px 11px}.results{grid-template-columns:1fr;gap:12px}.controls{grid-template-columns:1fr 1fr}.controls .searchfield{grid-column:1/-1}.lineup{display:grid;grid-template-columns:125px 1fr}.preview{height:100%;min-height:170px}.lineup-body{padding:15px}.lineup h3{font-size:15px}.lineup p{font-size:11px}.cardbottom{margin-top:7px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
 
 /* Step-by-step explorer */
@@ -259,6 +260,10 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
       <div class="cat-top"><span class="cat-icon" aria-hidden="true">◎</span><span class="cat-count" data-count="recon">0개</span></div>
       <div class="cat-name">각리콘</div><div class="cat-desc">소바 정찰 화살 위치와 활용</div>
     </button>
+    <button class="category" type="button" data-kind="cypher" aria-pressed="false">
+      <div class="cat-top"><span class="cat-icon" aria-hidden="true">◇</span><span class="cat-count" data-count="cypher">0개</span></div>
+      <div class="cat-name">라인업</div><div class="cat-desc">사이퍼 트랩과 장비 배치</div>
+    </button>
   </section>
 
   <div class="steps" aria-label="맵과 영상 선택">
@@ -331,7 +336,7 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
 <script>
 (function(){
 "use strict";
-const CATS={ghost:{label:"각귀체",icon:"👁"},molly:{label:"각불",icon:"🔥"},recon:{label:"각리콘",icon:"◎"}};
+const CATS={ghost:{label:"각귀체",icon:"👁"},molly:{label:"각불",icon:"🔥"},recon:{label:"각리콘",icon:"◎"},cypher:{label:"라인업",icon:"◇"}};
 const MAPS=["어센트","어비스","헤이븐","로터스","스플릿","선셋","서밋","바인드","브리즈","아이스박스","펄","프랙처","코로드"];
 // V26 액트 6 경쟁전 로테이션: 2026-10-13 패치 13.08, 2026-10-27 패치 13.09 확인.
 // 업데이트할 때는 아래 배열만 수정하세요. 나머지 맵은 자동으로 "그 외 맵"에 유지됩니다.

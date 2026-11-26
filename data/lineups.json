@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-24",
+  "updatedAt": "2026-11-26",
   "lineups": [
     {
       "id": "bind-a-molly-01",
@@ -467,6 +467,42 @@
       "thumbnail": "",
       "note": "",
       "addedAt": "2026-11-24"
+    },
+    {
+      "id": "sunset-atk-a-recon-01",
+      "kind": "recon",
+      "map": "선셋",
+      "side": "atk",
+      "site": "A",
+      "title": "A문에서 A 사이트",
+      "region": "A문에서 A 사이트",
+      "filename": "A문에서 A 사이트.mp4",
+      "video": "각리콘영상파일/선셋_각리콘/공격/A사이트/A문에서 A 사이트.mp4",
+      "addedAt": "2026-11-26"
+    },
+    {
+      "id": "sunset-atk-b-recon-01",
+      "kind": "recon",
+      "map": "선셋",
+      "side": "atk",
+      "site": "B",
+      "title": "T베이스에서 B사이트 백사",
+      "region": "T베이스에서 B사이트 백사",
+      "filename": "T베이스에서 B사이트 백사.mp4",
+      "video": "각리콘영상파일/선셋_각리콘/공격/B사이트/T베이스에서 B사이트 백사.mp4",
+      "addedAt": "2026-11-26"
+    },
+    {
+      "id": "corrode-def-b-cypher-01",
+      "kind": "cypher",
+      "map": "코로드",
+      "side": "def",
+      "site": "B",
+      "title": "B 트랩 1",
+      "region": "B 트랩 1",
+      "filename": "B트랩1.mp4",
+      "video": "사이퍼 라인업 영상파일/코로드 B 수비/트/B트랩1.mp4",
+      "addedAt": "2026-11-26"
     }
   ]
 }
