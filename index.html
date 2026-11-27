@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0d0f14">
-<meta name="description" content="이젠 나도 각폭러? — 발로란트 각귀체, 각불, 각리콘, 사이퍼 라인업을 맵·진영·사이트별로 모아 보는 라인업 라이브러리">
+<meta name="description" content="이젠 나도 각폭러? — 발로란트 각귀체, 각불, 각리콘, 사이퍼·바이퍼 라인업을 맵·진영·사이트별로 모아 보는 라인업 라이브러리">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="이젠 나도 각폭러?">
 <title>이젠 나도 각폭러?</title>
@@ -40,6 +40,7 @@ body::before{
 }
 body[data-kind="ghost"]{--agent-portrait:url("https://media.valorant-api.com/agents/dade69b4-4f5a-8528-247b-219e5a1facd6/fullportrait.png")}
 body[data-kind="molly"]{--agent-portrait:url("https://media.valorant-api.com/agents/9f0d8ba9-4140-b941-57d3-a7ad57c6b417/fullportrait.png")}
+body[data-kind="viper"]{--agent-portrait:url("https://media.valorant-api.com/agents/707eab51-4836-f488-046a-cda6bf494859/fullportrait.png")}
 body[data-kind="cypher"]{--agent-portrait:url("https://media.valorant-api.com/agents/117ed9e3-49f3-6512-3ccf-0cada7e3823b/fullportrait.png")}
 body[data-kind="recon"]{--agent-portrait:url("https://media.valorant-api.com/agents/320b2a48-4d9b-a075-30f1-1f93a9b638fa/fullportrait.png")}
 :root[data-theme="light"] body::before{opacity:.15}
@@ -61,7 +62,7 @@ body[data-kind="recon"]{--agent-portrait:url("https://media.valorant-api.com/age
 .hero h1{font-size:clamp(29px,4.8vw,55px);letter-spacing:-.05em;line-height:1.22;margin:15px 0 11px;font-weight:900}
 .hero h1 em{font-style:normal;color:var(--accent)}
 .hero p{max-width:630px;margin:0;color:var(--muted);font-size:15px}
-.category-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin:7px 0 39px}
+.category-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:15px;margin:7px 0 39px}
 .category{min-width:0;text-align:left;background:var(--card);border:1px solid var(--stroke);border-radius:18px;padding:23px 21px 20px;position:relative;overflow:hidden;transition:transform .15s,border-color .15s,background .15s}
 .category:hover{transform:translateY(-2px);border-color:var(--accent)}
 .category[aria-selected="true"]{background:var(--faint);border-color:var(--accent);box-shadow:inset 0 0 0 1px rgba(255,70,85,.22)}
@@ -264,6 +265,10 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
       <div class="cat-top"><span class="cat-icon" aria-hidden="true">◇</span><span class="cat-count" data-count="cypher">0개</span></div>
       <div class="cat-name">라인업</div><div class="cat-desc">사이퍼 트랩과 장비 배치</div>
     </button>
+    <button class="category" type="button" data-kind="viper" aria-pressed="false">
+      <div class="cat-top"><span class="cat-icon" aria-hidden="true">⬡</span><span class="cat-count" data-count="viper">0개</span></div>
+      <div class="cat-name">바이퍼 라인업</div><div class="cat-desc">장막 · 연막 · 뱀이빨</div>
+    </button>
   </section>
 
   <div class="steps" aria-label="맵과 영상 선택">
@@ -310,6 +315,10 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
       <div class="choice-grid sites" id="throws" role="group" aria-label="던지는 위치 선택"></div>
     </section>
 
+    <section class="stage" id="viperStage" aria-labelledby="viperTitle" hidden>
+      <div class="stage-header"><span class="step-num">04</span><h2 id="viperTitle">라인업 선택</h2></div>
+      <div class="choice-grid sites" id="viperChoices"></div>
+    </section>
     <section class="stage" id="videoStage" aria-labelledby="videoTitle" hidden>
       <div class="stage-header video-heading">
         <span class="step-num" id="videoStep">04</span>
@@ -336,7 +345,7 @@ dialog::backdrop{background:rgba(0,0,0,.80);backdrop-filter:blur(3px)}
 <script>
 (function(){
 "use strict";
-const CATS={ghost:{label:"각귀체",icon:"👁"},molly:{label:"각불",icon:"🔥"},recon:{label:"각리콘",icon:"◎"},cypher:{label:"라인업",icon:"◇"}};
+const CATS={ghost:{label:"각귀체",icon:"👁"},molly:{label:"각불",icon:"🔥"},recon:{label:"각리콘",icon:"◎"},cypher:{label:"라인업",icon:"◇"},viper:{label:"바이퍼 라인업",icon:"⬡"}};
 const MAPS=["어센트","어비스","헤이븐","로터스","스플릿","선셋","서밋","바인드","브리즈","아이스박스","펄","프랙처","코로드"];
 // V26 액트 6 경쟁전 로테이션: 2026-10-13 패치 13.08, 2026-10-27 패치 13.09 확인.
 // 업데이트할 때는 아래 배열만 수정하세요. 나머지 맵은 자동으로 "그 외 맵"에 유지됩니다.
@@ -344,7 +353,7 @@ const COMPETITIVE_MAPS=["어비스","바인드","코로드","헤이븐","로터�
 const NON_ROTATION_MAPS=MAPS.filter(map=>!COMPETITIVE_MAPS.includes(map));
 const THREE_SITE_MAPS=new Set(["헤이븐","로터스"]);
 const SIDE={atk:"공격",def:"수비"};
-const state={kind:"ghost",map:null,side:null,site:null,plant:null,throwFrom:null,otherMapsExpanded:false,lineups:[],loading:true,error:false};
+const state={viperGroup:null,kind:"ghost",map:null,side:null,site:null,plant:null,throwFrom:null,otherMapsExpanded:false,lineups:[],loading:true,error:false};
 const $=id=>document.getElementById(id);
 function node(tag,cls,value){const e=document.createElement(tag);if(cls)e.className=cls;if(value!==undefined)e.textContent=String(value);return e}
 const count=list=>list.length+"개";
@@ -416,6 +425,7 @@ function fieldsOf(item){
 function atPlant(){return atSite().filter(x=>fieldsOf(x).plant===state.plant)}
 function atThrow(){return atPlant().filter(x=>fieldsOf(x).throwFrom===state.throwFrom)}
 function resetAfter(level){
+  state.viperGroup=null;
   if(level==="kind"){state.map=null;state.side=null;state.site=null;state.plant=null;state.throwFrom=null}
   if(level==="map"){state.side=null;state.site=null;state.plant=null;state.throwFrom=null}
   if(level==="side"){state.site=null;state.plant=null;state.throwFrom=null}
@@ -621,14 +631,39 @@ function openViewer(item){
   $("viewer").showModal();
   const video=media.querySelector("video");if(video){const p=video.play();if(p&&p.catch)p.catch(()=>{})}
 }
+function renderViperChoices(items){
+  const box=$("viperChoices");
+  box.replaceChildren();
+  const full=items.filter(item=>item.fullVideo);
+  for(const item of full){
+    const label=full.length===1?"라인업 풀영상":item.title;
+    const button=node("button","choice site-choice",label);
+    button.type="button";
+    button.setAttribute("aria-haspopup","dialog");
+    button.addEventListener("click",()=>openViewer(item));
+    box.append(button);
+  }
+  const clips=items.filter(item=>!item.fullVideo);
+  for(const group of new Set(clips.map(item=>item.group||"기타"))){
+    const button=node("button","choice site-choice");
+    button.type="button";
+    button.setAttribute("aria-pressed",String(state.viperGroup===group));
+    button.append(node("strong",null,group),node("small",null,count(clips.filter(item=>(item.group||"기타")===group))));
+    button.addEventListener("click",()=>{state.viperGroup=group;render()});
+    box.append(button);
+  }
+}
 function renderVideos(){
   const molly=hasDetailedMolly();
-  const ready=!!state.site&&(!molly||(!!state.plant&&!!state.throwFrom));
+  const viper=state.kind==="viper"&&!!state.site&&atSite().length>0;
+  $("viperStage").hidden=!viper;
+  if(viper)renderViperChoices(atSite());
+  const ready=!!state.site&&(!viper||!!state.viperGroup)&&(!molly||(!!state.plant&&!!state.throwFrom));
   $("videoStage").hidden=!ready;
-  $("videoStep").textContent=molly?"06":"04";
+  $("videoStep").textContent=molly?"06":viper?"05":"04";
   if(!ready)return;
-  $("selectionTrail").textContent=[CATS[state.kind].label,state.map,SIDE[state.side],siteLabel(state.site),...(molly?[state.plant,state.throwFrom]:[])].join("  /  ");
-  const list=molly?atThrow():atSite();$("videoTotal").textContent=count(list);
+  $("selectionTrail").textContent=[CATS[state.kind].label,state.map,SIDE[state.side],siteLabel(state.site),...(molly?[state.plant,state.throwFrom]:viper?[state.viperGroup]:[])].join("  /  ");
+  const list=viper?atSite().filter(item=>!item.fullVideo&&(item.group||"기타")===state.viperGroup):molly?atThrow():atSite();$("videoTotal").textContent=count(list);
   const root=$("results");root.replaceChildren();
   if(state.loading||state.error||!list.length){
     const empty=node("div","empty");

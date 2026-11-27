@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-26",
+  "updatedAt": "2026-11-27",
   "lineups": [
     {
       "id": "bind-a-molly-01",
@@ -503,6 +503,84 @@
       "filename": "B트랩1.mp4",
       "video": "사이퍼 라인업 영상파일/코로드 B 수비/트/B트랩1.mp4",
       "addedAt": "2026-11-26"
+    },
+    {
+      "id": "lotus-atk-a-viper-01",
+      "kind": "viper",
+      "map": "로터스",
+      "side": "atk",
+      "site": "A",
+      "fullVideo": true,
+      "region": "A 라인업 풀영상",
+      "title": "A 라인업 풀영상",
+      "filename": "A 라인업 풀영상.mp4",
+      "video": "바이퍼 라인업 영상파일/로터스/공격 A 라인업/A 라인업 풀영상.mp4",
+      "addedAt": "2026-11-27"
+    },
+    {
+      "id": "lotus-atk-a-viper-02",
+      "kind": "viper",
+      "map": "로터스",
+      "side": "atk",
+      "site": "A",
+      "group": "나무",
+      "region": "A메인에서 나무 뱀이빨",
+      "title": "A메인에서 나무 뱀이빨",
+      "filename": "A메인에서 나무 뱀이빨.mp4",
+      "video": "바이퍼 라인업 영상파일/로터스/공격 A 라인업/나무/A메인에서 나무 뱀이빨.mp4",
+      "addedAt": "2026-11-27"
+    },
+    {
+      "id": "lotus-atk-a-viper-03",
+      "kind": "viper",
+      "map": "로터스",
+      "side": "atk",
+      "site": "A",
+      "group": "나무",
+      "region": "A메인에서 나무 연막",
+      "title": "A메인에서 나무 연막",
+      "filename": "A메인에서 나무 연막.mp4",
+      "video": "바이퍼 라인업 영상파일/로터스/공격 A 라인업/나무/A메인에서 나무 연막.mp4",
+      "addedAt": "2026-11-27"
+    },
+    {
+      "id": "lotus-atk-a-viper-04",
+      "kind": "viper",
+      "map": "로터스",
+      "side": "atk",
+      "site": "A",
+      "group": "백사(드롭)",
+      "region": "A메인에서 백사 뱀이빨",
+      "title": "A메인에서 백사 뱀이빨",
+      "filename": "A메인에서 백사 뱀이빨.mp4",
+      "video": "바이퍼 라인업 영상파일/로터스/공격 A 라인업/백사(드롭)/A메인에서 백사 뱀이빨.mp4",
+      "addedAt": "2026-11-27"
+    },
+    {
+      "id": "lotus-atk-a-viper-05",
+      "kind": "viper",
+      "map": "로터스",
+      "side": "atk",
+      "site": "A",
+      "group": "백사(드롭)",
+      "region": "A메인에서 백사 원웨이 연막",
+      "title": "A메인에서 백사 원웨이 연막",
+      "filename": "A메인에서 백사 원웨이 연막.mp4",
+      "video": "바이퍼 라인업 영상파일/로터스/공격 A 라인업/백사(드롭)/A메인에서 백사 원웨이 연막.mp4",
+      "addedAt": "2026-11-27"
+    },
+    {
+      "id": "lotus-atk-a-viper-06",
+      "kind": "viper",
+      "map": "로터스",
+      "side": "atk",
+      "site": "A",
+      "group": "장막",
+      "region": "A메인에서 장막",
+      "title": "A메인에서 장막",
+      "filename": "A 메인에서 장막.mp4",
+      "video": "바이퍼 라인업 영상파일/로터스/공격 A 라인업/장막/A 메인에서 장막.mp4",
+      "addedAt": "2026-11-27"
     }
   ]
 }
